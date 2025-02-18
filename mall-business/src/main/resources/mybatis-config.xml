@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <properties>
+        <property name="SECKILL_PRODUCT_DATABASE" value="susan_mall."/>
+    </properties>
+    <typeAliases>
+    </typeAliases>
+    <typeHandlers>
+    </typeHandlers>
+
+    <plugins>
+        <plugin interceptor="cn.net.susan.mybatis.UserInterceptor"/>
+        <plugin interceptor="cn.net.susan.mybatis.SensitiveInterceptor"/>
+    </plugins>
+</configuration>
