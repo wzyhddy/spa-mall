@@ -53,4 +53,6 @@ public interface RoleMapper extends BaseMapper<RoleEntity, RoleConditionEntity> 
      * @return 部门信息
     */
 	List<RoleEntity> findByIds(List<Long> ids);
+
+	List<RoleEntity> findRoleByUserId(Long id);
 }

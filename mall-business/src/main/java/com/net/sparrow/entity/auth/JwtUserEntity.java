@@ -24,6 +24,7 @@ public class JwtUserEntity implements UserDetails {
 
     private List<SimpleGrantedAuthority> authorities;
 
+    private List<String> roles;
 
     @Override
     public boolean isAccountNonExpired() {

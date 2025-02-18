@@ -23,6 +23,7 @@
         <result property="updateUserName" column="update_user_name"/>
         <result property="updateTime" column="update_time"/>
         <result property="isDel" column="is_del"/>
+        <result property="component" column="component"/>
     </resultMap>
 
 
@@ -51,6 +52,7 @@
          update_user_id,
          update_user_name,
          update_time,
+         component,
          is_del
     </sql>
 
@@ -62,7 +64,7 @@
             </if>
 
             <if test="name != null  and name != ''">
-                AND name = #{name}
+                AND name LIKE CONCAT ('%',  #{name},'%')
             </if>
 
             <if test="pid != null ">
@@ -247,7 +249,9 @@
             <if test="isDel != null ">
                 is_del = #{isDel},
             </if>
-
+            <if test="component != null ">
+                component = #{component},
+            </if>
             update_time=now(3)
         </trim>
         WHERE id = #{id}
@@ -275,7 +279,6 @@
             <if test="pid != null ">
                 pid,
             </if>
-
 
             <if test="sort != null ">
                 sort,
@@ -350,7 +353,9 @@
             <if test="isDel != null ">
                 is_del,
             </if>
-
+            <if test="component != null ">
+                component,
+            </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="name != null  and name != ''">
@@ -421,6 +426,9 @@
                 #{isDel},
             </if>
 
+            <if test="component != null ">
+                component,
+            </if>
         </trim>
     </insert>
 
@@ -434,5 +442,33 @@
             #{id}
         </foreach>
     </select>
+
+    <select id="findMenuByRoleIdList"
+            parameterType="Long"
+            resultMap="MenuResult">
+        SELECT
+        sm.id,
+        sm.name,
+        sm.pid,
+        sm.sort,
+        sm.icon,
+        sm.path,
+        sm.hidden,
+        sm.is_link,
+        sm.type,
+        sm.permission,
+        sm.url,
+        srm.role_id
+        FROM sys_menu sm
+        INNER JOIN sys_role_menu srm ON sm.id=srm.role_id
+        <where>
+            srm.role_id IN
+            <foreach collection="roleIdList" item="roleId" open="(" close=")" separator=",">
+                #{roleId}
+            </foreach>
+            AND sm.is_del=0
+        </where>
+    </select>
+
 
 </mapper>

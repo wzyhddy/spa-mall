@@ -3,6 +3,8 @@ package com.net.sparrow.mapper.sys;
 import com.net.sparrow.entity.sys.MenuConditionEntity;
 import com.net.sparrow.entity.sys.MenuEntity;
 import com.net.sparrow.mapper.BaseMapper;
+
+import java.util.Collection;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -53,4 +55,12 @@ public interface MenuMapper extends BaseMapper<MenuEntity, MenuConditionEntity> 
      * @return 部门信息
     */
 	List<MenuEntity> findByIds(List<Long> ids);
+
+	/**
+	 * 根据角色ID查询菜单列表
+	 *
+	 * @param roleIdList 角色ID集合
+	 * @return 菜单列表
+	 */
+	List<MenuEntity> findMenuByRoleIdList(@Param("roleIdList") Collection<Long> roleIdList);
 }

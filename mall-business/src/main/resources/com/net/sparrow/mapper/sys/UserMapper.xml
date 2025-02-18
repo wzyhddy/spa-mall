@@ -455,4 +455,14 @@
         </foreach>
     </select>
 
+    <select id="findByUserName" parameterType="String" resultMap="UserResult">
+        SELECT
+        <include refid="selectUserColumn"/>
+        FROM sys_user
+        <where>
+            AND user_name = #{userName}
+            AND is_del = 0
+        </where>
+    </select>
+
 </mapper>

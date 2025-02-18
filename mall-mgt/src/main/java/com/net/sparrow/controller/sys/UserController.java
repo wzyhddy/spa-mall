@@ -1,5 +1,6 @@
 package com.net.sparrow.controller.sys;
 
+import com.net.sparrow.annotation.NoLogin;
 import com.net.sparrow.util.ApiResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -65,8 +66,9 @@ public class UserController {
      */
 	@ApiOperation(notes = "添加用户", value = "添加用户")
 	@PostMapping("/insert")
-	public int insert(@RequestBody UserEntity userEntity) {
-		return userService.insert(userEntity);
+	@NoLogin
+	public void insert(@RequestBody UserEntity userEntity) {
+		userService.insert(userEntity);
 	}
 
 	/**

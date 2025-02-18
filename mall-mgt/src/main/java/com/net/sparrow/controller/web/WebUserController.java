@@ -3,6 +3,7 @@ package com.net.sparrow.controller.web;
 import com.net.sparrow.annotation.NoLogin;
 import com.net.sparrow.entity.auth.AuthUserEntity;
 import com.net.sparrow.entity.auth.CaptchaEntity;
+import com.net.sparrow.entity.auth.JwtUserEntity;
 import com.net.sparrow.entity.auth.TokenEntity;
 import com.net.sparrow.service.sys.UserService;
 import io.swagger.annotations.Api;
@@ -54,7 +55,7 @@ public class WebUserController {
 	@ApiOperation(notes = "用户退出登录", value = "用户退出登录")
 	@PostMapping("/logout")
 	public void logout(HttpServletRequest request) {
-//		userService.logout(request);
+		userService.logout(request);
 	}
 
 	@NoLogin
@@ -62,5 +63,12 @@ public class WebUserController {
 	@GetMapping(value = "/code")
 	public CaptchaEntity getCode() {
 		return userService.getCode();
+	}
+
+	@NoLogin
+	@ApiOperation("获取用户信息")
+	@GetMapping(value = "/info")
+	public JwtUserEntity getUserInfo() {
+		return userService.getUserInfo();
 	}
 }

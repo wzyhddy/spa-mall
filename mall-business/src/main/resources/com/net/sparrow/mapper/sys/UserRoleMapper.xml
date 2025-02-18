@@ -135,4 +135,10 @@
         </foreach>
     </select>
 
+    <insert id="batchInsert" parameterType="com.net.sparrow.entity.sys.UserRoleEntity">
+        INSERT INTO sys_user_role (user_id,role_id) VALUES
+        <foreach collection="list" item="item"  separator=",">
+            (#{item.userId},#{item.roleId})
+        </foreach>
+    </insert>
 </mapper>

@@ -53,4 +53,6 @@ public interface UserRoleMapper extends BaseMapper<UserRoleEntity, UserRoleCondi
      * @return 部门信息
     */
 	List<UserRoleEntity> findByIds(List<Long> ids);
+
+	int batchInsert(List<UserRoleEntity> userRoleEntities);
 }

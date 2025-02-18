@@ -2,6 +2,9 @@ package com.net.sparrow.util;
 
 
 import com.net.sparrow.entity.BaseEntity;
+import com.net.sparrow.entity.auth.JwtUserEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Date;
 
@@ -23,20 +26,20 @@ public abstract class FillUserUtil {
      * @param baseEntity 实体
      */
     public static void fillCreateUserInfo(BaseEntity baseEntity) {
-//        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        AssertUtil.notNull(authentication, "当前登录状态过期");
-//        if (authentication.getPrincipal() instanceof String) {
-//            if (ANONYMOUS_USER.equals(authentication.getPrincipal())) {
-//                baseEntity.setCreateUserId(DEFAULT_USER_ID);
-//                baseEntity.setCreateUserName(DEFAULT_USER_NAME);
-//                baseEntity.setCreateTime(new Date());
-//            }
-//        } else {
-//            JwtUserEntity jwtUserEntity = (JwtUserEntity) authentication.getPrincipal();
-//            baseEntity.setCreateUserId(jwtUserEntity.getId());
-//            baseEntity.setCreateUserName(jwtUserEntity.getUsername());
-//            baseEntity.setCreateTime(new Date());
-//        }
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        AssertUtil.notNull(authentication, "当前登录状态过期");
+        if (authentication.getPrincipal() instanceof String) {
+            if (ANONYMOUS_USER.equals(authentication.getPrincipal())) {
+                baseEntity.setCreateUserId(DEFAULT_USER_ID);
+                baseEntity.setCreateUserName(DEFAULT_USER_NAME);
+                baseEntity.setCreateTime(new Date());
+            }
+        } else {
+            JwtUserEntity jwtUserEntity = (JwtUserEntity) authentication.getPrincipal();
+            baseEntity.setCreateUserId(jwtUserEntity.getId());
+            baseEntity.setCreateUserName(jwtUserEntity.getUsername());
+            baseEntity.setCreateTime(new Date());
+        }
     }
 
     /**
@@ -45,12 +48,12 @@ public abstract class FillUserUtil {
      * @param baseEntity 实体
      */
     public static void fillUpdateUserInfo(BaseEntity baseEntity) {
-//        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        AssertUtil.notNull(authentication, "当前登录状态过期");
-//        JwtUserEntity jwtUserEntity = (JwtUserEntity) authentication.getPrincipal();
-//        baseEntity.setUpdateUserId(jwtUserEntity.getId());
-//        baseEntity.setUpdateUserName(jwtUserEntity.getUsername());
-//        baseEntity.setUpdateTime(new Date());
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        AssertUtil.notNull(authentication, "当前登录状态过期");
+        JwtUserEntity jwtUserEntity = (JwtUserEntity) authentication.getPrincipal();
+        baseEntity.setUpdateUserId(jwtUserEntity.getId());
+        baseEntity.setUpdateUserName(jwtUserEntity.getUsername());
+        baseEntity.setUpdateTime(new Date());
     }
 
     /**
@@ -59,8 +62,8 @@ public abstract class FillUserUtil {
      * @param baseEntity 实体
      */
     public static void fillUpdateUserInfoFromCreate(BaseEntity baseEntity) {
-//        baseEntity.setUpdateUserId(baseEntity.getCreateUserId());
-//        baseEntity.setUpdateUserName(baseEntity.getCreateUserName());
-//        baseEntity.setUpdateTime(new Date());
+        baseEntity.setUpdateUserId(baseEntity.getCreateUserId());
+        baseEntity.setUpdateUserName(baseEntity.getCreateUserName());
+        baseEntity.setUpdateTime(new Date());
     }
 }

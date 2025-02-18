@@ -333,4 +333,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </select>
 
+    <select id="findRoleByUserId" parameterType="Long" resultMap="RoleResult">
+        SELECT
+        sr.id,
+        sr.name,
+        sr.remark,
+        sr.data_scope,
+        sr.level,
+        sr.permission
+        FROM sys_role sr
+        INNER JOIN sys_user_role sur ON sr.id=sur.role_id
+        <where>
+            sur.user_id=#{userId}
+            AND sr.is_del=0
+        </where>
+    </select>
+
 </mapper>

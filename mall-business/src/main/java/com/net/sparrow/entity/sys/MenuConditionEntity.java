@@ -1,5 +1,6 @@
 package com.net.sparrow.entity.sys;
 
+import com.net.sparrow.entity.RequestConditionEntity;
 import com.net.sparrow.entity.RequestPageEntity;
 import lombok.Data;
 import java.util.Date;
@@ -14,7 +15,7 @@ import io.swagger.annotations.ApiModelProperty;
  */
 @ApiModel("菜单查询条件实体")
 @Data
-public class MenuConditionEntity extends RequestPageEntity {
+public class MenuConditionEntity extends RequestConditionEntity {
 	
 
 	/**

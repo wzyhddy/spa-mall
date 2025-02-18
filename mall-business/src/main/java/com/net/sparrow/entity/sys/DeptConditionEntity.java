@@ -1,5 +1,6 @@
 package com.net.sparrow.entity.sys;
 
+import com.net.sparrow.entity.RequestConditionEntity;
 import com.net.sparrow.entity.RequestPageEntity;
 import lombok.Data;
 import java.util.Date;
@@ -14,7 +15,7 @@ import io.swagger.annotations.ApiModelProperty;
  */
 @ApiModel("部门查询条件实体")
 @Data
-public class DeptConditionEntity extends RequestPageEntity {
+public class DeptConditionEntity extends RequestConditionEntity {
 	
 
 	/**
@@ -82,4 +83,6 @@ public class DeptConditionEntity extends RequestPageEntity {
      */
 	@ApiModelProperty("是否删除 1：已删除 0：未删除")
 	private Integer isDel;
+
+	private Boolean QueryTree;
 }

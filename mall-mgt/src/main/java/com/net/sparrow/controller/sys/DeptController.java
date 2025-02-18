@@ -1,5 +1,6 @@
 package com.net.sparrow.controller.sys;
 
+import com.net.sparrow.dto.DeptTreeDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -10,9 +11,13 @@ import com.net.sparrow.entity.ResponsePageEntity;
 import com.net.sparrow.entity.sys.DeptConditionEntity;
 import com.net.sparrow.entity.sys.DeptEntity;
 import com.net.sparrow.service.sys.DeptService;
+
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -49,7 +54,7 @@ public class DeptController {
     */
 	@ApiOperation(notes = "根据条件查询部门列表", value = "根据条件查询部门列表")
 	@PostMapping("/searchByPage")
-	public ResponsePageEntity<DeptEntity> searchByPage(@RequestBody DeptConditionEntity deptConditionEntity) {
+	public ResponsePageEntity<DeptTreeDTO> searchByPage(@RequestBody DeptConditionEntity deptConditionEntity) {
 		return deptService.searchByPage(deptConditionEntity);
 	}
 
@@ -88,5 +93,15 @@ public class DeptController {
 	@PostMapping("/deleteByIds")
 	public int deleteByIds(@RequestBody @NotNull List<Long> ids) {
 		return deptService.deleteByIds(ids);
+	}
+
+	/**
+	 * 导出部门数据
+	 * @return 影响行数
+	 */
+	@ApiOperation(notes = "导出部门数据", value = "导出部门数据")
+	@PostMapping("/export")
+	public void export(HttpServletResponse response, DeptConditionEntity deptConditionEntity) throws IOException {
+		deptService.export(response, deptConditionEntity);
 	}
 }

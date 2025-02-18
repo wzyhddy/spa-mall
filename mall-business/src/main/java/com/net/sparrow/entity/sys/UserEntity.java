@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.util.Date;
+import java.util.List;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -86,4 +88,22 @@ public class UserEntity extends BaseEntity {
 	 */
 	@ApiModelProperty("有效状态 1:有效 0:无效")
 	private Integer validStatus;
+
+	/**
+	 * 角色列表
+	 */
+	@ApiModelProperty("角色列表")
+	private List<RoleEntity> roleList;
+
+	/**
+	 * 最后登录城市
+	 */
+	@ApiModelProperty("最后登录城市")
+	private String lastLoginCity;
+
+	/**
+	 * 最后登录时间
+	 */
+	@ApiModelProperty("最后登录时间")
+	private Date lastLoginTime;
 }

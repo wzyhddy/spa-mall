@@ -5,7 +5,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * @Author: Sparrow
- * @Description: TODO
  * @DateTime: 2025/2/17 17:30
  **/
 @SpringBootApplication

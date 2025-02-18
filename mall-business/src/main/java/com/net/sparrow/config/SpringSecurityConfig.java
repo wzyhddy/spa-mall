@@ -1,6 +1,7 @@
 package com.net.sparrow.config;
 
 import com.net.sparrow.annotation.NoLogin;
+import com.net.sparrow.util.SpringBeanUtil;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -38,6 +39,7 @@ public class SpringSecurityConfig implements ApplicationContextAware {
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.applicationContext = applicationContext;
+		SpringBeanUtil.setApplicationContext(applicationContext);
 	}
 
 	@Bean

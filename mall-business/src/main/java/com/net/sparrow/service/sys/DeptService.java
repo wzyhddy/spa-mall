@@ -1,6 +1,15 @@
 package com.net.sparrow.service.sys;
 
+import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import cn.hutool.core.util.BooleanUtil;
+import com.net.sparrow.dto.DeptTreeDTO;
+import com.net.sparrow.util.BetweenTimeUtil;
+import com.net.sparrow.util.ExcelUtil;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.net.sparrow.mapper.sys.DeptMapper;
@@ -11,6 +20,9 @@ import com.net.sparrow.util.AssertUtil;
 import com.net.sparrow.util.FillUserUtil;
 import com.net.sparrow.mapper.BaseMapper;
 import com.net.sparrow.service.BaseService;
+
+import javax.servlet.http.HttpServletResponse;
+
 /**
  * 部门 服务层
  *
@@ -34,21 +46,63 @@ public class DeptService extends BaseService< DeptEntity,  DeptConditionEntity> 
 	}
 
 	/**
-     * 根据条件分页查询部门列表
-     *
-     * @param deptConditionEntity 部门信息
-     * @return 部门集合
-     */
-	public ResponsePageEntity<DeptEntity> searchByPage(DeptConditionEntity deptConditionEntity) {
+	 * 根据条件分页查询部门列表
+	 *
+	 * @param deptConditionEntity 部门信息
+	 * @return 部门集合
+	 */
+	public ResponsePageEntity<DeptTreeDTO> searchByPage(DeptConditionEntity deptConditionEntity) {
 		int count = deptMapper.searchCount(deptConditionEntity);
 		if (count == 0) {
 			return ResponsePageEntity.buildEmpty(deptConditionEntity);
 		}
 		List<DeptEntity> dataList = deptMapper.searchByCondition(deptConditionEntity);
-		return ResponsePageEntity.build(deptConditionEntity, count, dataList);
+		List<DeptTreeDTO> deptTreeDTOList = buildDeptTree(dataList, deptConditionEntity.getQueryTree());
+		return ResponsePageEntity.build(deptConditionEntity, count, deptTreeDTOList);
 	}
 
-    /**
+	private List<DeptTreeDTO> buildDeptTree(List<DeptEntity> dataList, Boolean queryTree) {
+		if (CollectionUtils.isEmpty(dataList)) {
+			return Collections.emptyList();
+		}
+
+		List<DeptTreeDTO> deptTreeDTOList = dataList.stream().map(x -> convertToDeptTreeDTO(x)).collect(Collectors.toList());
+		if (CollectionUtils.isEmpty(deptTreeDTOList)) {
+			return Collections.emptyList();
+		}
+
+		if (queryTree) {
+			for (DeptTreeDTO deptTreeDTO : deptTreeDTOList) {
+				buildChildren(deptTreeDTO);
+			}
+		}
+		return deptTreeDTOList;
+	}
+
+	private void buildChildren(DeptTreeDTO deptTreeDTO) {
+		DeptConditionEntity deptConditionEntity = new DeptConditionEntity();
+		deptConditionEntity.setPid(deptTreeDTO.getId());
+		deptConditionEntity.setPageSize(0);
+		List<DeptEntity> deptEntities = deptMapper.searchByCondition(deptConditionEntity);
+		if(CollectionUtils.isEmpty(deptEntities)) {
+			for (DeptEntity deptEntity : deptEntities) {
+				DeptTreeDTO childDeptTreeDTO = convertToDeptTreeDTO(deptEntity);
+				deptTreeDTO.addChildren(childDeptTreeDTO);
+				buildChildren(childDeptTreeDTO);
+			}
+		}
+	}
+
+	private DeptTreeDTO convertToDeptTreeDTO(DeptEntity deptEntity) {
+		DeptTreeDTO deptTreeDTO = new DeptTreeDTO();
+		deptTreeDTO.setId(deptEntity.getId());
+		deptTreeDTO.setName(deptEntity.getName());
+		deptTreeDTO.setLabel(deptEntity.getName());
+		deptTreeDTO.setPid(deptEntity.getPid());
+		deptTreeDTO.setCreateTime(deptEntity.getCreateTime());
+		return deptTreeDTO;
+	}
+	/**
      * 新增部门
      *
      * @param deptEntity 部门信息
@@ -88,4 +142,10 @@ public class DeptService extends BaseService< DeptEntity,  DeptConditionEntity> 
 		return deptMapper;
 	}
 
+	public void export(HttpServletResponse response, DeptConditionEntity deptConditionEntity) throws IOException {
+		BetweenTimeUtil.parseTime(deptConditionEntity);
+		deptConditionEntity.setPageSize(0);
+		List<DeptEntity> deptEntities = deptMapper.searchByCondition(deptConditionEntity);
+		ExcelUtil.exportExcel("部门数据", DeptEntity.class, deptEntities, response);
+	}
 }

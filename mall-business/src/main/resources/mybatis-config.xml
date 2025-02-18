@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
     <properties>
-        <property name="SECKILL_PRODUCT_DATABASE" value="susan_mall."/>
+        <property name="SECKILL_PRODUCT_DATABASE" value="spa_mall."/>
     </properties>
     <typeAliases>
     </typeAliases>
@@ -12,7 +12,7 @@
     </typeHandlers>
 
     <plugins>
-        <plugin interceptor="cn.net.susan.mybatis.UserInterceptor"/>
-        <plugin interceptor="cn.net.susan.mybatis.SensitiveInterceptor"/>
+        <plugin interceptor="com.net.sparrow.mybatis.UserInterceptor"/>
+        <plugin interceptor="com.net.sparrow.mybatis.SensitiveInterceptor"/>
     </plugins>
 </configuration>

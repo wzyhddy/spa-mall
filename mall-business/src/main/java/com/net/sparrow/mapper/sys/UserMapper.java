@@ -53,4 +53,6 @@ public interface UserMapper extends BaseMapper<UserEntity, UserConditionEntity> 
      * @return 部门信息
     */
 	List<UserEntity> findByIds(List<Long> ids);
+
+	UserEntity findByUserName(String username);
 }
