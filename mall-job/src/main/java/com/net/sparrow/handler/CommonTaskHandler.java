@@ -2,11 +2,13 @@ package com.net.sparrow.handler;
 
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONUtil;
+import com.net.sparrow.entity.common.CommonNotifyEntity;
 import com.net.sparrow.entity.common.CommonTaskConditionEntity;
 import com.net.sparrow.entity.common.CommonTaskEntity;
 import com.net.sparrow.enums.ExcelBizTypeEnum;
 import com.net.sparrow.enums.TaskStatusEnum;
 import com.net.sparrow.exception.BusinessException;
+import com.net.sparrow.mapper.common.CommonNotifyMapper;
 import com.net.sparrow.mapper.common.CommonTaskMapper;
 import com.net.sparrow.service.BaseService;
 import com.net.sparrow.util.DateFormatUtil;
@@ -18,6 +20,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -27,7 +30,7 @@ import static com.net.sparrow.constant.NumberConstant.NUMBER_3;
 
 /**
  * @Author: Sparrow
- * @Description: handler
+ * @Description: job
  * @DateTime: 2025/2/18 22:22
  **/
 @Slf4j
@@ -43,6 +46,12 @@ public class CommonTaskHandler {
 
 	@Autowired
 	private CommonTaskMapper commonTaskMapper;
+
+	@Autowired
+	private TransactionTemplate transactionTemplate;
+
+	@Autowired
+	private CommonNotifyMapper commonNotifyMapper;
 
 	@Scheduled(fixedRate = 1000)
 	public void run() {
@@ -80,7 +89,8 @@ public class CommonTaskHandler {
 					String serviceName = this.getServiceName(requestEntity);
 					BaseService baseService = (BaseService) SpringBeanUtil.getBean(serviceName);
 					String fileName = getFileName(value.getDesc());
-					baseService.export(toBean, fileName, this.getEntityName(requestEntity));
+					String fileUrl = baseService.export(toBean, fileName, this.getEntityName(requestEntity));
+					commonTaskEntity.setFileUrl(fileUrl);
 					//执行成功
 					commonTaskEntity.setStatus(TaskStatusEnum.SUCCESS.getValue());
 				} catch (Exception e) {
@@ -92,11 +102,37 @@ public class CommonTaskHandler {
 						commonTaskEntity.setStatus(TaskStatusEnum.FAIL.getValue());
 					}
 				}
+//				通过 TransactionTemplate，这段代码将 commonTaskMapper.update 和 saveNotifyMessage 两个操作包装在一个事务中
 				commonTaskEntity.setUpdateTime(new Date());
-				commonTaskMapper.update(commonTaskEntity);
+				transactionTemplate.execute((status) -> {
+					commonTaskMapper.update(commonTaskEntity);
+					saveNotifyMessage(commonTaskEntity);
+					return Boolean.TRUE;
+				});
 				return;
 			}
 		}
+	}
+
+	private void saveNotifyMessage(CommonTaskEntity commonTaskEntity) {
+		CommonNotifyEntity commonNotifyEntity = new CommonNotifyEntity();
+		commonNotifyEntity.setTitle("excel导出通知");
+		commonNotifyEntity.setContent(getContent(commonTaskEntity));
+		commonNotifyEntity.setToUserId(commonTaskEntity.getCreateUserId());
+		commonNotifyEntity.setIsPush(0);
+		commonNotifyEntity.setType(1);
+		commonNotifyEntity.setReadStatus(0);
+		commonNotifyEntity.setCreateUserId(commonTaskEntity.getCreateUserId());
+		commonNotifyEntity.setCreateUserName(commonTaskEntity.getCreateUserName());
+		commonNotifyEntity.setCreateTime(new Date());
+		commonNotifyEntity.setIsDel(0);
+		commonNotifyMapper.insert(commonNotifyEntity);
+	}
+
+	private String getContent(CommonTaskEntity commonTaskEntity) {
+		StringBuilder contentBuilder = new StringBuilder();
+		contentBuilder.append("成功导出excel文件：").append(commonTaskEntity.getName()).append("，下载地址：").append(commonTaskEntity.getFileUrl());
+		return contentBuilder.toString();
 	}
 
 	private String getFileName(String fileName) {
