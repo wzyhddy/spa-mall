@@ -14,7 +14,7 @@ import java.util.List;
 
 public abstract class ExcelUtil {
 
-    public static String TEMP_FILE_PATH = "D:/IdeaProjects/spa-mall/tmp/";
+    public static String TEMP_FILE_PATH = "D:/IdeaProjects/spa_mall/tmp/";
 
     private static final String UTF8 = StandardCharsets.UTF_8.toString();
 
@@ -35,9 +35,7 @@ public abstract class ExcelUtil {
         response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
         response.setCharacterEncoding(UTF8);
         response.setHeader("Content-disposition", "attachment;filename=" + downloadName + ".xlsx");
-        EasyExcel.write(response.getOutputStream(), clazz)
-                .sheet(fileName).doWrite(data);
-
+        EasyExcel.write(response.getOutputStream(), clazz).sheet(fileName).doWrite(data);
     }
 
     /**
@@ -53,8 +51,7 @@ public abstract class ExcelUtil {
         System.out.println("当前工作目录: " + System.getProperty("user.dir"));
         File file = new File(downloadName);
         FileOutputStream fileOutputStream = new FileOutputStream(file);
-        EasyExcel.write(fileOutputStream, clazz)
-                .sheet(fileName).doWrite(data);
+        EasyExcel.write(fileOutputStream, clazz).sheet(fileName).doWrite(data);
     }
 
     private static String getDownLoadFileName(String fileName) throws UnsupportedEncodingException {

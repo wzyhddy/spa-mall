@@ -15,7 +15,7 @@ public abstract class FillUserUtil {
 
     private static final Long DEFAULT_USER_ID = 1L;
     private static final String DEFAULT_USER_NAME = "系统管理员";
-    private static final String ANONYMOUS_USER = "anonymousUser";
+    private static final String ANONYMOUS_USER = "anonymousUser"; //匿名用户
 
     private FillUserUtil() {
     }

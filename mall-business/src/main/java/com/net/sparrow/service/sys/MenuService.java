@@ -10,7 +10,6 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.net.sparrow.dto.MenuTreeDTO;
 import com.net.sparrow.dto.MetaDTO;
 import com.net.sparrow.util.BetweenTimeUtil;
-import com.net.sparrow.util.ExcelUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,8 +22,6 @@ import com.net.sparrow.util.FillUserUtil;
 import com.net.sparrow.mapper.BaseMapper;
 import com.net.sparrow.service.BaseService;
 
-import javax.servlet.http.HttpServletResponse;
-
 /**
  * 菜单 服务层
  *
@@ -32,19 +29,19 @@ import javax.servlet.http.HttpServletResponse;
  * @date 2025-02-17 20:14:35
  */
 @Service
-public class MenuService extends BaseService< MenuEntity,  MenuConditionEntity> {
+public class MenuService extends BaseService<MenuEntity, MenuConditionEntity> {
 
 	@Autowired
 	private MenuMapper menuMapper;
 
 	/**
-     * 查询菜单信息
-     *
-     * @param id 菜单ID
-     * @return 菜单信息
-     */
+	 * 查询菜单信息
+	 *
+	 * @param id 菜单ID
+	 * @return 菜单信息
+	 */
 	public MenuEntity findById(Long id) {
-	    return menuMapper.findById(id);
+		return menuMapper.findById(id);
 	}
 
 	/**
@@ -63,34 +60,34 @@ public class MenuService extends BaseService< MenuEntity,  MenuConditionEntity> 
 		return ResponsePageEntity.build(menuConditionEntity, count, dataList);
 	}
 
-    /**
-     * 新增菜单
-     *
-     * @param menuEntity 菜单信息
-     * @return 结果
-     */
+	/**
+	 * 新增菜单
+	 *
+	 * @param menuEntity 菜单信息
+	 * @return 结果
+	 */
 	public int insert(MenuEntity menuEntity) {
 		FillUserUtil.fillCreateUserInfo(menuEntity);
-	    return menuMapper.insert(menuEntity);
+		return menuMapper.insert(menuEntity);
 	}
 
 	/**
-     * 修改菜单
-     *
-     * @param menuEntity 菜单信息
-     * @return 结果
-     */
+	 * 修改菜单
+	 *
+	 * @param menuEntity 菜单信息
+	 * @return 结果
+	 */
 	public int update(MenuEntity menuEntity) {
 		FillUserUtil.fillUpdateUserInfo(menuEntity);
-	    return menuMapper.update(menuEntity);
+		return menuMapper.update(menuEntity);
 	}
 
 	/**
-     * 批量删除菜单对象
-     *
-     * @param ids 系统ID集合
-     * @return 结果
-     */
+	 * 批量删除菜单对象
+	 *
+	 * @param ids 系统ID集合
+	 * @return 结果
+	 */
 	public int deleteByIds(List<Long> ids) {
 		List<MenuEntity> entities = menuMapper.findByIds(ids);
 		AssertUtil.notEmpty(entities, "菜单已被删除");
@@ -105,22 +102,13 @@ public class MenuService extends BaseService< MenuEntity,  MenuConditionEntity> 
 		return menuMapper;
 	}
 
-
-	public void export(HttpServletResponse response, MenuConditionEntity menuConditionEntity) throws IOException {
-		BetweenTimeUtil.parseTime(menuConditionEntity);
-		menuConditionEntity.setPageSize(0);
-		List<MenuEntity> menuEntities = menuMapper.searchByCondition(menuConditionEntity);
-		ExcelUtil.exportExcel("菜单数据", MenuEntity.class, menuEntities, response);
-	}
-
-
 	public List<MenuTreeDTO> getMenuTree() {
 		MenuConditionEntity menuConditionEntity = new MenuConditionEntity();
 		menuConditionEntity.setPageSize(0);
 		menuConditionEntity.setPid(0L);
 		//先查询第一级菜单(父类最顶级菜单)再递归查询子菜单,封装一个菜单树
 		List<MenuEntity> menuEntities = menuMapper.searchByCondition(menuConditionEntity);
-		if(CollectionUtil.isEmpty(menuEntities)) {
+		if (CollectionUtil.isEmpty(menuEntities)) {
 			return Collections.emptyList();
 		}
 		List<MenuTreeDTO> result = new ArrayList<MenuTreeDTO>();
@@ -142,7 +130,7 @@ public class MenuService extends BaseService< MenuEntity,  MenuConditionEntity> 
 			for (MenuEntity childrenEntity : childrenEntities) {
 				MenuTreeDTO childMenuTreeDTO = buildMenuTreeDTO(childrenEntity);
 				menuTreeDTO.addChildren(childMenuTreeDTO);
-				buildChildren(childrenEntity,childMenuTreeDTO);
+				buildChildren(childrenEntity, childMenuTreeDTO);
 			}
 		}
 	}
