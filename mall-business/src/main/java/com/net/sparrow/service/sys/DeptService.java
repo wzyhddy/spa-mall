@@ -3,6 +3,7 @@ package com.net.sparrow.service.sys;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import cn.hutool.core.util.BooleanUtil;
@@ -109,6 +110,10 @@ public class DeptService extends BaseService< DeptEntity,  DeptConditionEntity> 
      * @return 结果
      */
 	public int insert(DeptEntity deptEntity) {
+		if (Objects.isNull(deptEntity.getPid())) {
+			deptEntity.setPid(0L);
+		}
+		FillUserUtil.fillCreateUserInfo(deptEntity);
 	    return deptMapper.insert(deptEntity);
 	}
 
