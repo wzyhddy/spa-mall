@@ -9,16 +9,24 @@ import java.util.stream.Collectors;
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.json.JSONUtil;
 import com.net.sparrow.dto.web.CityDTO;
 import com.net.sparrow.entity.auth.AuthUserEntity;
 import com.net.sparrow.entity.auth.CaptchaEntity;
 import com.net.sparrow.entity.auth.JwtUserEntity;
 import com.net.sparrow.entity.auth.TokenEntity;
+import com.net.sparrow.entity.common.CommonTaskEntity;
+import com.net.sparrow.entity.email.RemoteLoginEmailEntity;
 import com.net.sparrow.entity.sys.UserRoleEntity;
+import com.net.sparrow.enums.EmailTypeEnum;
+import com.net.sparrow.enums.TaskStatusEnum;
+import com.net.sparrow.enums.TaskTypeEnum;
 import com.net.sparrow.exception.BusinessException;
 import com.net.sparrow.helper.GeoIpHelper;
 import com.net.sparrow.helper.TokenHelper;
+import com.net.sparrow.mapper.common.CommonTaskMapper;
 import com.net.sparrow.mapper.sys.UserRoleMapper;
+import com.net.sparrow.util.DateFormatUtil;
 import com.net.sparrow.util.FillUserUtil;
 import com.net.sparrow.util.IpUtil;
 import com.net.sparrow.util.PasswordUtil;
@@ -95,6 +103,8 @@ public class UserService extends com.net.sparrow.service.BaseService<UserEntity,
 	@Autowired
 	private GeoIpHelper geoIpHelper;
 
+	private CommonTaskMapper commonTaskMapper;
+
 	public TokenEntity login(AuthUserEntity authUserEntity) {
 		String code = redisUtil.get(getCaptchaKey(authUserEntity.getUuid()));
 		AssertUtil.hasLength(code, "该验证码不存在或者已失效");
@@ -143,8 +153,38 @@ public class UserService extends com.net.sparrow.service.BaseService<UserEntity,
 				return;
 			}
 		}
+
+		//记录异地登录请求
+		recordRemoteLoginData(userEntity, nowCity);
 		//用户修改密码时可以将lastLoginCity清空
 		AssertUtil.isTrue(userEntity.getLastLoginCity().equals(nowCity), "您的账号处于异地登录，为了安全考虑，请修改密码之后重新登录");
+	}
+
+	private void recordRemoteLoginData(UserEntity userEntity, String nowCity) {
+		HttpServletRequest httpServletRequest = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+		RemoteLoginEmailEntity remoteLoginEmailEntity = new RemoteLoginEmailEntity();
+		remoteLoginEmailEntity.setUsername(userEntity.getUserName());
+		remoteLoginEmailEntity.setNickName(userEntity.getNickName());
+		remoteLoginEmailEntity.setIp(IpUtil.getIpAddr(httpServletRequest));
+		remoteLoginEmailEntity.setDevice(httpServletRequest.getHeader("user-agent"));
+		remoteLoginEmailEntity.setCityName(nowCity);
+		remoteLoginEmailEntity.setEmail(userEntity.getEmail());
+		remoteLoginEmailEntity.setLoginTime(DateFormatUtil.parseToString(userEntity.getUpdateTime()));
+
+		CommonTaskEntity commonTaskEntity = createCommonTaskEntity();
+		commonTaskEntity.setRequestParam(JSONUtil.toJsonStr(remoteLoginEmailEntity));
+		commonTaskMapper.insert(commonTaskEntity);
+	}
+
+	private CommonTaskEntity createCommonTaskEntity() {
+		CommonTaskEntity commonTaskEntity = new CommonTaskEntity();
+		commonTaskEntity.setName("发送异地登录邮件");
+		commonTaskEntity.setStatus(TaskStatusEnum.WAITING.getValue());
+		commonTaskEntity.setFailureCount(0);
+		commonTaskEntity.setType(TaskTypeEnum.SEND_EMAIL.getValue());
+		commonTaskEntity.setBizType(EmailTypeEnum.REMOTE_LOGIN.getValue());
+		FillUserUtil.fillCreateUserInfo(commonTaskEntity);
+		return commonTaskEntity;
 	}
 
 	private void updateLastLoginCity(UserEntity userEntity) {
