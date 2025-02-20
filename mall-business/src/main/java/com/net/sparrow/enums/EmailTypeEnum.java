@@ -5,11 +5,9 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum TaskTypeEnum {
+public enum EmailTypeEnum {
 
-    EXPORT_EXCEL(1, "通用excel数据导出"),
-
-    SEND_EMAIL(2, "发送邮件");
+    REMOTE_LOGIN(1, "异地登录提醒");
 
     /**
      * 枚举值

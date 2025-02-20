@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8"/>
+    <title></title>
+    <style>
+        td {
+            border: black 1px solid;
+        }
+    </style>
+</head>
+<body>
+
+<div>
+    <div>你好，${emailEntity.nickName}。</div>
+    <div>系统检测到你的账号存在异地登录的情况，如果不是本人操作，请及时修改密码。</div>
+    <table>
+        <tr>
+            <td>登录地点：</td>
+            <td>${emailEntity.cityName} </td>
+        </tr>
+        <tr>
+            <td>登录时间：</td>
+            <td>${emailEntity.loginTime}</td>
+        </tr>
+        <tr>
+            <td>设备名称：</td>
+            <td>${emailEntity.device}</td>
+        </tr>
+        <tr>
+            <td>ip地址：</td>
+            <td>${emailEntity.ip}</td>
+        </tr>
+    </table>
+    <div class="margin-top:100px">by 苏三商城技术团队</div>
+</div>
+</body>
+</html>

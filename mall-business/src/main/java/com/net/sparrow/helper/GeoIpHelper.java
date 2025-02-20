@@ -21,13 +21,17 @@ public class GeoIpHelper {
 
     @Value("${mall.mgt.geoIpFilePath:}")
     private String geoIpFilePath;
+
     @Value("${mall.mgt.taobaoIpUrl:}")
     private String taobaoIpUrl;
+
     @Value("${mall.mgt.taobaoIpRequestOff:false}")
     private Boolean taobaoIpRequestOff;
+
     @Autowired
     private HttpHelper httpHelper;
 
+    private static final String NOT_FOUND_CITY_NAME = "未知";
 
     /**
      * 根据ip获取所在城市
@@ -41,9 +45,19 @@ public class GeoIpHelper {
             return cityFromGeoIp;
         }
         if (taobaoIpRequestOff) {
-            return null;
+            return getNotFoundCity();
         }
-        return getCityFromApi(ip);
+        CityDTO cityFromApi = getCityFromApi(ip);
+        if (Objects.nonNull(cityFromApi)) {
+            return cityFromApi;
+        }
+        return getNotFoundCity();
+    }
+
+    private CityDTO getNotFoundCity() {
+        CityDTO cityDTO = new CityDTO();
+        cityDTO.setCity(NOT_FOUND_CITY_NAME);
+        return cityDTO;
     }
 
     private CityDTO getCityFromGeoIp(String ip) {

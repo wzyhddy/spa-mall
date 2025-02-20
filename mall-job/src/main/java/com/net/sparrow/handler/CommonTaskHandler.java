@@ -5,12 +5,15 @@ import cn.hutool.json.JSONUtil;
 import com.net.sparrow.entity.common.CommonNotifyEntity;
 import com.net.sparrow.entity.common.CommonTaskConditionEntity;
 import com.net.sparrow.entity.common.CommonTaskEntity;
+import com.net.sparrow.entity.email.RemoteLoginEmailEntity;
 import com.net.sparrow.enums.ExcelBizTypeEnum;
 import com.net.sparrow.enums.TaskStatusEnum;
+import com.net.sparrow.enums.TaskTypeEnum;
 import com.net.sparrow.exception.BusinessException;
 import com.net.sparrow.mapper.common.CommonNotifyMapper;
 import com.net.sparrow.mapper.common.CommonTaskMapper;
 import com.net.sparrow.service.BaseService;
+import com.net.sparrow.service.email.RemoteLoginEmailService;
 import com.net.sparrow.util.DateFormatUtil;
 import com.net.sparrow.util.FillUserUtil;
 import com.net.sparrow.util.SpringBeanUtil;
@@ -53,6 +56,9 @@ public class CommonTaskHandler {
 	@Autowired
 	private CommonNotifyMapper commonNotifyMapper;
 
+	@Autowired
+	private RemoteLoginEmailService remoteLoginEmailService;
+
 	@Scheduled(fixedRate = 1000)
 	public void run() {
 		CommonTaskConditionEntity commonTaskConditionEntity = new CommonTaskConditionEntity();
@@ -63,11 +69,15 @@ public class CommonTaskHandler {
 			return;
 		}
 		for (CommonTaskEntity commonTaskEntity : commonTaskEntities) {
-			doExport(commonTaskEntity);
+			if (TaskTypeEnum.EXPORT_EXCEL.getValue().equals(commonTaskEntity.getType())) {
+				doExportExcel(commonTaskEntity);
+			} else if (TaskTypeEnum.SEND_EMAIL.getValue().equals(commonTaskEntity.getType())) {
+				doSendEmail(commonTaskEntity);
+			}
 		}
 	}
 
-	private void doExport(CommonTaskEntity commonTaskEntity) {
+	private void doExportExcel(CommonTaskEntity commonTaskEntity) {
 		Integer bizType = commonTaskEntity.getBizType();
 		for (ExcelBizTypeEnum value : ExcelBizTypeEnum.values()) {
 			if (value.getValue().equals(bizType)) {
@@ -114,6 +124,29 @@ public class CommonTaskHandler {
 		}
 	}
 
+	private void doSendEmail(CommonTaskEntity commonTaskEntity) {
+		//任务开始执行时，状态改成执行中
+		commonTaskEntity.setStatus(TaskStatusEnum.RUNNING.getValue());
+		FillUserUtil.fillUpdateUserInfoFromCreate(commonTaskEntity);
+		commonTaskMapper.update(commonTaskEntity);
+
+		try {
+			RemoteLoginEmailEntity remoteLoginEmailEntity = JSONUtil.toBean(commonTaskEntity.getRequestParam(), RemoteLoginEmailEntity.class);
+			remoteLoginEmailService.sendEmail(remoteLoginEmailEntity);
+			commonTaskEntity.setStatus(TaskStatusEnum.SUCCESS.getValue());
+		} catch (Exception e) {
+			log.error("数据导出异常，原因：", e);
+			//失败次数加1
+			commonTaskEntity.setFailureCount(commonTaskEntity.getFailureCount() + 1);
+			//如果失败次数超过3次，则将状态改成失败，后面不再执行
+			if (commonTaskEntity.getFailureCount() >= NUMBER_3) {
+				commonTaskEntity.setStatus(TaskStatusEnum.FAIL.getValue());
+			}
+		}
+
+		commonTaskEntity.setUpdateTime(new Date());
+		commonTaskMapper.update(commonTaskEntity);
+	}
 	private void saveNotifyMessage(CommonTaskEntity commonTaskEntity) {
 		CommonNotifyEntity commonNotifyEntity = new CommonNotifyEntity();
 		commonNotifyEntity.setTitle("excel导出通知");

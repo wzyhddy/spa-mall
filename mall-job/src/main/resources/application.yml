@@ -5,7 +5,24 @@ spring:
     url: jdbc:mysql://localhost:3306/spa_mall?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false&zeroDateTimeBehavior=convertToNull
     username: root
     password: 123456
-
+  mail:
+    protocol: smtp
+    host: smtp.163.com
+    port: 25
+    username: wzyhddy@163.com
+    password: XUbFj6whdUDPj3gc
+    default-encoding: UTF-8
+#  rabbitmq:
+#    host: 43.136.235.243
+#    port: 5672
+#    password: guest
+#    username: guest
+  redis:
+    database: 5
+    host: 124.221.142.75
+    port: 6379
+    password: cool
+    timeout: 5000
 server:
   port: 8012
 
