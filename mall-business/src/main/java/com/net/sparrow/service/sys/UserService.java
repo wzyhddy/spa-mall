@@ -1,19 +1,26 @@
 package com.net.sparrow.service.sys;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
+import cn.hutool.core.date.DateUnit;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
+import com.net.sparrow.dto.web.CityDTO;
 import com.net.sparrow.entity.auth.AuthUserEntity;
 import com.net.sparrow.entity.auth.CaptchaEntity;
 import com.net.sparrow.entity.auth.JwtUserEntity;
 import com.net.sparrow.entity.auth.TokenEntity;
 import com.net.sparrow.entity.sys.UserRoleEntity;
 import com.net.sparrow.exception.BusinessException;
+import com.net.sparrow.helper.GeoIpHelper;
 import com.net.sparrow.helper.TokenHelper;
 import com.net.sparrow.mapper.sys.UserRoleMapper;
 import com.net.sparrow.util.FillUserUtil;
+import com.net.sparrow.util.IpUtil;
 import com.net.sparrow.util.PasswordUtil;
 import com.net.sparrow.util.RedisUtil;
 import com.net.sparrow.util.TokenUtil;
@@ -38,8 +45,13 @@ import com.net.sparrow.entity.ResponsePageEntity;
 import com.net.sparrow.util.AssertUtil;
 import com.net.sparrow.mapper.BaseMapper;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+
+import static com.net.sparrow.util.AssertUtil.ASSERT_ERROR_CODE;
 
 /**
  * 用户 服务层
@@ -80,6 +92,9 @@ public class UserService extends com.net.sparrow.service.BaseService<UserEntity,
 	@Autowired
 	private UserDetailsService userDetailsService;
 
+	@Autowired
+	private GeoIpHelper geoIpHelper;
+
 	public TokenEntity login(AuthUserEntity authUserEntity) {
 		String code = redisUtil.get(getCaptchaKey(authUserEntity.getUuid()));
 		AssertUtil.hasLength(code, "该验证码不存在或者已失效");
@@ -90,15 +105,52 @@ public class UserService extends com.net.sparrow.service.BaseService<UserEntity,
 			Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 			JwtUserEntity jwtUserEntity = (JwtUserEntity) (authentication.getPrincipal());
+			UserEntity userEntity = userMapper.findByUserName(jwtUserEntity.getUsername());
+			AssertUtil.notNull(userEntity, "该用户不存在");
+			//获取当前用户的IP
+			HttpServletRequest httpServletRequest = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+			String ip = IpUtil.getIpAddr(httpServletRequest);
+			CityDTO cityDTO = geoIpHelper.getCity(ip);
+			if (Objects.nonNull(cityDTO)) {
+				String city = cityDTO.getCity();
+				validateRemoteLogin(userEntity, city);
+				userEntity.setLastLoginCity(city);
+			}
 			String token = tokenHelper.generateToken(jwtUserEntity);
 			redisUtil.del(getCaptchaKey(authUserEntity.getUuid()));
 			List<String> roles = jwtUserEntity.getAuthorities().stream().map(SimpleGrantedAuthority::getAuthority).collect(Collectors.toList());
+			//更新用户的最后登录城市
+			updateLastLoginCity(userEntity);
 			return new TokenEntity(authUserEntity.getUsername(), token, roles);
 		}catch (Exception e) {
 			log.info("登录失败：", e);
-			throw new BusinessException(HttpStatus.FORBIDDEN.value(), " 用户名或密码错误");
+			if (e instanceof BusinessException) {
+				throw e;
+			}
+			throw new BusinessException(ASSERT_ERROR_CODE, "用户名或密码错误");
 		}
 
+	}
+
+	private void validateRemoteLogin(UserEntity userEntity, String nowCity) {
+		if (!StringUtils.hasLength(userEntity.getLastLoginCity())) {
+			return;
+		}
+		Date lastLoginTime = userEntity.getLastLoginTime();
+		if (Objects.nonNull(lastLoginTime)) {
+			long betweenHours = DateUtil.between(new Date(), lastLoginTime, DateUnit.HOUR);
+			if (betweenHours > remoteLoginDiffHour) {
+				return;
+			}
+		}
+		//用户修改密码时可以将lastLoginCity清空
+		AssertUtil.isTrue(userEntity.getLastLoginCity().equals(nowCity), "您的账号处于异地登录，为了安全考虑，请修改密码之后重新登录");
+	}
+
+	private void updateLastLoginCity(UserEntity userEntity) {
+		FillUserUtil.fillUpdateUserInfo(userEntity);
+		userEntity.setLastLoginTime(new Date());
+		userMapper.update(userEntity);
 	}
 
 	public void logout(HttpServletRequest request) {

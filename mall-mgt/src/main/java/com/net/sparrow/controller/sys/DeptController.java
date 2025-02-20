@@ -1,5 +1,6 @@
 package com.net.sparrow.controller.sys;
 
+import com.net.sparrow.annotation.BizLog;
 import com.net.sparrow.dto.DeptTreeDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -67,6 +68,7 @@ public class DeptController {
      */
 	@ApiOperation(notes = "添加部门", value = "添加部门")
 	@PostMapping("/insert")
+	@BizLog("添加部门")
 	public int insert(@RequestBody DeptEntity deptEntity) {
 		return deptService.insert(deptEntity);
 	}
