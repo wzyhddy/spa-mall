@@ -1,6 +1,7 @@
 package com.net.sparrow.service.email;
 
 import com.net.sparrow.service.email.impl.IEmailService;
+import com.net.sparrow.util.AssertUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
@@ -8,6 +9,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -50,6 +52,7 @@ public class EmailService implements IEmailService {
      */
     @Override
     public void sendHtmlEmail(String receiveEmail, String subject, String htmlContent) throws MessagingException {
+        AssertUtil.isTrue(StringUtils.hasLength(receiveEmail), "receiveEmail不能为空");
         MimeMessage message = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
         helper.setFrom(fromEmail);
