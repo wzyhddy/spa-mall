@@ -3,6 +3,7 @@ package com.net.sparrow.service.sys;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -17,6 +18,8 @@ import com.net.sparrow.entity.auth.JwtUserEntity;
 import com.net.sparrow.entity.auth.TokenEntity;
 import com.net.sparrow.entity.common.CommonTaskEntity;
 import com.net.sparrow.entity.email.RemoteLoginEmailEntity;
+import com.net.sparrow.entity.sys.DeptConditionEntity;
+import com.net.sparrow.entity.sys.DeptEntity;
 import com.net.sparrow.entity.sys.UserRoleEntity;
 import com.net.sparrow.enums.EmailTypeEnum;
 import com.net.sparrow.enums.TaskStatusEnum;
@@ -25,6 +28,7 @@ import com.net.sparrow.exception.BusinessException;
 import com.net.sparrow.helper.GeoIpHelper;
 import com.net.sparrow.helper.TokenHelper;
 import com.net.sparrow.mapper.common.CommonTaskMapper;
+import com.net.sparrow.mapper.sys.DeptMapper;
 import com.net.sparrow.mapper.sys.UserRoleMapper;
 import com.net.sparrow.util.DateFormatUtil;
 import com.net.sparrow.util.FillUserUtil;
@@ -37,14 +41,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.stereotype.Service;
 import com.net.sparrow.mapper.sys.UserMapper;
 import com.net.sparrow.entity.sys.UserConditionEntity;
@@ -58,7 +60,6 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
-
 import static com.net.sparrow.util.AssertUtil.ASSERT_ERROR_CODE;
 
 /**
@@ -81,6 +82,9 @@ public class UserService extends com.net.sparrow.service.BaseService<UserEntity,
 
 	@Autowired
 	private TokenHelper tokenHelper;
+
+	@Autowired
+	private DeptMapper deptMapper;
 
 	@Autowired
 	private RedisUtil redisUtil;
@@ -226,7 +230,31 @@ public class UserService extends com.net.sparrow.service.BaseService<UserEntity,
 			return ResponsePageEntity.buildEmpty(userConditionEntity);
 		}
 		List<UserEntity> dataList = userMapper.searchByCondition(userConditionEntity);
+		fillData(dataList);
 		return ResponsePageEntity.build(userConditionEntity, count, dataList);
+	}
+
+	private void fillData(List<UserEntity> dataList) {
+		if(CollectionUtils.isEmpty(dataList)) {
+			return;
+		}
+		List<Long> deptIdList = dataList.stream().map(UserEntity::getDeptId).filter(Objects::nonNull).collect(Collectors.toList());
+		if(CollectionUtils.isEmpty(deptIdList)) {
+			return;
+		}
+		DeptConditionEntity deptConditionEntity = new DeptConditionEntity();
+		deptConditionEntity.setIdList(deptIdList);
+		List<DeptEntity> deptEntities = deptMapper.searchByCondition(deptConditionEntity);
+		Map<Long, List<DeptEntity>> deptMap = deptEntities.stream().collect(Collectors.groupingBy(DeptEntity::getId));
+		for (UserEntity userEntity : dataList) {
+			if (Objects.isNull(userEntity.getDeptId())) {
+				continue;
+			}
+			List<DeptEntity> entityList = deptMap.get(userEntity.getDeptId());
+			if (CollectionUtils.isNotEmpty(entityList)) {
+				userEntity.setDeptName(entityList.get(0).getName());
+			}
+		}
 	}
 
 	/**

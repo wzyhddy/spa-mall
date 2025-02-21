@@ -216,7 +216,7 @@
         WHERE id = #{id}
     </delete>
 
-    <insert id="insert" parameterType="com.net.sparrow.entity.common.CommonNotifyEntity">
+    <insert id="insert" parameterType="com.net.sparrow.entity.common.CommonNotifyEntity" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO common_notify
         <trim prefix="(" suffix=")" suffixOverrides=",">
 

@@ -1,6 +1,8 @@
 package com.net.sparrow.service.sys;
 
 import java.util.List;
+
+import com.net.sparrow.util.BetweenTimeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.net.sparrow.mapper.sys.JobMapper;
@@ -40,6 +42,7 @@ public class JobService extends BaseService< JobEntity,  JobConditionEntity> {
      * @return 岗位集合
      */
 	public ResponsePageEntity<JobEntity> searchByPage(JobConditionEntity jobConditionEntity) {
+		BetweenTimeUtil.parseTime(jobConditionEntity);
 		int count = jobMapper.searchCount(jobConditionEntity);
 		if (count == 0) {
 			return ResponsePageEntity.buildEmpty(jobConditionEntity);
@@ -55,6 +58,7 @@ public class JobService extends BaseService< JobEntity,  JobConditionEntity> {
      * @return 结果
      */
 	public int insert(JobEntity jobEntity) {
+		FillUserUtil.fillCreateUserInfo(jobEntity);
 	    return jobMapper.insert(jobEntity);
 	}
 
@@ -65,6 +69,7 @@ public class JobService extends BaseService< JobEntity,  JobConditionEntity> {
      * @return 结果
      */
 	public int update(JobEntity jobEntity) {
+		FillUserUtil.fillUpdateUserInfo(jobEntity);
 	    return jobMapper.update(jobEntity);
 	}
 

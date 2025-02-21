@@ -1,5 +1,6 @@
 package com.net.sparrow.controller.sys;
 
+import com.net.sparrow.enums.ExcelBizTypeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,6 +14,7 @@ import com.net.sparrow.service.sys.JobService;
 import javax.validation.constraints.NotNull;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import com.net.sparrow.annotation.ExcelExport;
 import java.util.List;
 
 /**
@@ -88,5 +90,11 @@ public class JobController {
 	@PostMapping("/deleteByIds")
 	public int deleteByIds(@RequestBody @NotNull List<Long> ids) {
 		return jobService.deleteByIds(ids);
+	}
+
+	@ExcelExport(ExcelBizTypeEnum.JOB)
+	@ApiOperation(notes = "导出岗位数据", value = "导出岗位数据")
+	@PostMapping("/export")
+	public void export(@RequestBody JobConditionEntity jobConditionEntity) {
 	}
 }

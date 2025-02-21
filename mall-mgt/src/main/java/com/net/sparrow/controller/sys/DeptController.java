@@ -1,6 +1,7 @@
 package com.net.sparrow.controller.sys;
 
 import com.net.sparrow.annotation.BizLog;
+import com.net.sparrow.annotation.NoLogin;
 import com.net.sparrow.dto.DeptTreeDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -106,4 +107,19 @@ public class DeptController {
 	public void export(HttpServletResponse response, DeptConditionEntity deptConditionEntity) throws IOException {
 		deptService.export(response, deptConditionEntity);
 	}
+
+
+	/**
+	 * 查询部门树
+	 *
+	 * @param deptConditionEntity 条件
+	 * @return 部门树
+	 */
+	@NoLogin
+	@ApiOperation(notes = "查询部门树", value = "查询部门树")
+	@PostMapping("/searchByTree")
+	public List<DeptTreeDTO> searchByTree(@RequestBody DeptConditionEntity deptConditionEntity) {
+		return deptService.searchByTree(deptConditionEntity);
+	}
+
 }

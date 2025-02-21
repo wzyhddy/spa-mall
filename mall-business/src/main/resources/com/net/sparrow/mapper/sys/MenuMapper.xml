@@ -427,7 +427,7 @@
             </if>
 
             <if test="component != null ">
-                component,
+                #{component},
             </if>
         </trim>
     </insert>

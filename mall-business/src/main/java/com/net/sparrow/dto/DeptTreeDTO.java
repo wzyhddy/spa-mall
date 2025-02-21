@@ -59,6 +59,12 @@ public class DeptTreeDTO {
     private List<DeptTreeDTO> children;
 
     /**
+     * 是否叶子节点
+     */
+    @ApiModelProperty("是否叶子节点")
+    private Boolean leaf;
+
+    /**
      * 增加添加子部门的方法
      *
      * @param deptTreeDTO 子部门
