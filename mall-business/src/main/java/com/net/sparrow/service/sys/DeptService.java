@@ -31,19 +31,19 @@ import javax.servlet.http.HttpServletResponse;
  * @date 2025-02-17 20:14:34
  */
 @Service
-public class DeptService extends BaseService< DeptEntity,  DeptConditionEntity> {
+public class DeptService extends BaseService<DeptEntity, DeptConditionEntity> {
 
 	@Autowired
 	private DeptMapper deptMapper;
 
 	/**
-     * 查询部门信息
-     *
-     * @param id 部门ID
-     * @return 部门信息
-     */
+	 * 查询部门信息
+	 *
+	 * @param id 部门ID
+	 * @return 部门信息
+	 */
 	public DeptEntity findById(Long id) {
-	    return deptMapper.findById(id);
+		return deptMapper.findById(id);
 	}
 
 	/**
@@ -62,6 +62,21 @@ public class DeptService extends BaseService< DeptEntity,  DeptConditionEntity> 
 		return ResponsePageEntity.build(deptConditionEntity, count, deptTreeDTOList);
 	}
 
+
+	/**
+	 * 根据条件查询部门树
+	 *
+	 * @param deptConditionEntity
+	 * @return
+	 */
+	public List<DeptTreeDTO> searchByTree(DeptConditionEntity deptConditionEntity) {
+		if (Objects.isNull(deptConditionEntity.getPid())) {
+			deptConditionEntity.setPid(0L);
+		}
+		List<DeptEntity> deptEntities = deptMapper.searchByCondition(deptConditionEntity);
+		return buildDeptTree(deptEntities, true);
+	}
+
 	private List<DeptTreeDTO> buildDeptTree(List<DeptEntity> dataList, Boolean queryTree) {
 		if (CollectionUtils.isEmpty(dataList)) {
 			return Collections.emptyList();
@@ -72,7 +87,7 @@ public class DeptService extends BaseService< DeptEntity,  DeptConditionEntity> 
 			return Collections.emptyList();
 		}
 
-		if (queryTree) {
+		if (BooleanUtil.isTrue(queryTree)){
 			for (DeptTreeDTO deptTreeDTO : deptTreeDTOList) {
 				buildChildren(deptTreeDTO);
 			}
@@ -85,12 +100,14 @@ public class DeptService extends BaseService< DeptEntity,  DeptConditionEntity> 
 		deptConditionEntity.setPid(deptTreeDTO.getId());
 		deptConditionEntity.setPageSize(0);
 		List<DeptEntity> deptEntities = deptMapper.searchByCondition(deptConditionEntity);
-		if(CollectionUtils.isEmpty(deptEntities)) {
+		if (CollectionUtils.isNotEmpty(deptEntities)) {
 			for (DeptEntity deptEntity : deptEntities) {
 				DeptTreeDTO childDeptTreeDTO = convertToDeptTreeDTO(deptEntity);
 				deptTreeDTO.addChildren(childDeptTreeDTO);
 				buildChildren(childDeptTreeDTO);
 			}
+		} else {
+			deptTreeDTO.setLeaf(true);
 		}
 	}
 
@@ -103,36 +120,37 @@ public class DeptService extends BaseService< DeptEntity,  DeptConditionEntity> 
 		deptTreeDTO.setCreateTime(deptEntity.getCreateTime());
 		return deptTreeDTO;
 	}
+
 	/**
-     * 新增部门
-     *
-     * @param deptEntity 部门信息
-     * @return 结果
-     */
+	 * 新增部门
+	 *
+	 * @param deptEntity 部门信息
+	 * @return 结果
+	 */
 	public int insert(DeptEntity deptEntity) {
 		if (Objects.isNull(deptEntity.getPid())) {
 			deptEntity.setPid(0L);
 		}
 		FillUserUtil.fillCreateUserInfo(deptEntity);
-	    return deptMapper.insert(deptEntity);
+		return deptMapper.insert(deptEntity);
 	}
 
 	/**
-     * 修改部门
-     *
-     * @param deptEntity 部门信息
-     * @return 结果
-     */
+	 * 修改部门
+	 *
+	 * @param deptEntity 部门信息
+	 * @return 结果
+	 */
 	public int update(DeptEntity deptEntity) {
-	    return deptMapper.update(deptEntity);
+		return deptMapper.update(deptEntity);
 	}
 
 	/**
-     * 批量删除部门对象
-     *
-     * @param ids 系统ID集合
-     * @return 结果
-     */
+	 * 批量删除部门对象
+	 *
+	 * @param ids 系统ID集合
+	 * @return 结果
+	 */
 	public int deleteByIds(List<Long> ids) {
 		List<DeptEntity> entities = deptMapper.findByIds(ids);
 		AssertUtil.notEmpty(entities, "部门已被删除");

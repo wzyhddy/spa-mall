@@ -42,5 +42,5 @@ public class JobEntity extends BaseEntity {
 	 * 有效状态 1:有效 0:无效
 	 */
 	@ApiModelProperty("有效状态 1:有效 0:无效")
-	private Integer validStatus;
+	private Boolean validStatus;
 }

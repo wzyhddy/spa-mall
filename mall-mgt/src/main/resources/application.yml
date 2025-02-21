@@ -22,7 +22,11 @@ spring:
     username: wzyhddy@163.com
     password: XUbFj6whdUDPj3gc
     default-encoding: UTF-8
-
+  rabbitmq:
+    host: 124.221.142.75
+    port: 5672
+    username: rabbitmq
+    password: rabbitmq
 server:
   port: 8011
 

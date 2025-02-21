@@ -53,6 +53,13 @@ public class UserEntity extends BaseEntity {
 	@ApiModelProperty("部门ID")
 	private Long deptId;
 
+
+	/**
+	 * 部门名称
+	 */
+	@ApiModelProperty("部门名称")
+	private String deptName;
+
 	/**
 	 * 手机号码
 	 */
