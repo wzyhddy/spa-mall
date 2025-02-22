@@ -45,3 +45,12 @@ mall:
   mgt:
     geoIpFilePath: D:/IdeaProjects/spa-mall/tmp/geoip2
     taobaoIpUrl: https://ip.taobao.com/outGetIpInfo?ip=%s&accessKey=alibaba-inc
+
+oss:
+  qiniu:
+    accessKey: V-Tz0xdLnWFHbHM9mmd78exWVcqAWQeoxrzwSH8i
+    secretKey: YR39wsPfMxOTedNizE8xcJj6J4rzSphPHzQhXs2i
+    bucketPictureName: spa-mall
+    domainPicture: http://ss2t6snkb.hd-bkt.clouddn.com/
+    bucketFileName: spa-mall
+    domainFile: http://ss2t6snkb.hd-bkt.clouddn.com/

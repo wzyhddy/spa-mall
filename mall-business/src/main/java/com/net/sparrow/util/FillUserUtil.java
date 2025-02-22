@@ -3,6 +3,7 @@ package com.net.sparrow.util;
 
 import com.net.sparrow.entity.BaseEntity;
 import com.net.sparrow.entity.auth.JwtUserEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -75,5 +76,32 @@ public abstract class FillUserUtil {
             return null;
         }
         return (JwtUserEntity) authentication.getPrincipal();
+    }
+
+    /**
+     * 填充默认用户信息
+     * @param baseEntity 实体
+     */
+    public static void fillUpdateDefaultUserInfo(BaseEntity baseEntity) {
+        baseEntity.setUpdateUserId(DEFAULT_USER_ID);
+        baseEntity.setUpdateUserName(DEFAULT_USER_NAME);
+        baseEntity.setUpdateTime(new Date());
+    }
+    /**
+     * mock当前登录的用户
+     */
+    public static void mockCurrentUser() {
+        JwtUserEntity jwtUserEntity = new JwtUserEntity();
+        jwtUserEntity.setId(DEFAULT_USER_ID);
+        jwtUserEntity.setUsername(DEFAULT_USER_NAME);
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(jwtUserEntity, null, jwtUserEntity.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    /**
+     * 清空当前登录用户信息
+     */
+    public static void clearCurrentUser() {
+        SecurityContextHolder.getContext().setAuthentication(null);
     }
 }

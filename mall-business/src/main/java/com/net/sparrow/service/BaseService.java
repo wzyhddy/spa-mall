@@ -6,14 +6,19 @@ import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.google.common.collect.Lists;
+import com.net.sparrow.dto.FileDTO;
 import com.net.sparrow.entity.RequestConditionEntity;
 import com.net.sparrow.exception.BusinessException;
 import com.net.sparrow.mapper.BaseMapper;
+import com.net.sparrow.service.upload.UploadService;
 import com.net.sparrow.util.BetweenTimeUtil;
 import com.net.sparrow.util.ExcelUtil;
+import com.net.sparrow.util.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,6 +28,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static com.net.sparrow.util.QiNiuUtil.FILE;
 
 
 /**
@@ -40,6 +47,8 @@ public abstract class BaseService<K, V> {
 	@Value("${mall.mgt.sheetDataSize:4}")
 	private int sheetDataSize;
 
+	@Autowired
+	private UploadService uploadService;
 	/**
 	 * 获取BaseMapper
 	 *
@@ -112,6 +121,13 @@ public abstract class BaseService<K, V> {
 			}
 		}
 		excelWriter.finish();
+		try {
+			MultipartFile multipartFile = FileUtil.toMultipartFile(fileName, file);
+			FileDTO fileDTO = uploadService.upload(multipartFile, FILE, "application/vnd.ms-excel");
+			return fileDTO.getDownloadUrl();
+		} catch (Exception e) {
+			log.info("上传excel文件到oss服务器失败，原因：{}", e);
+		}
 		return downloadName;
 	}
 
