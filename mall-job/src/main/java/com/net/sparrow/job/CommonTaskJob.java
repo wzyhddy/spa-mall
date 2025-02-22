@@ -2,6 +2,7 @@ package com.net.sparrow.job;
 
 import com.net.sparrow.entity.common.CommonTaskConditionEntity;
 import com.net.sparrow.entity.common.CommonTaskEntity;
+import com.net.sparrow.enums.JobResult;
 import com.net.sparrow.enums.TaskStatusEnum;
 import com.net.sparrow.factory.AsyncTaskStrategyContextFactory;
 import com.net.sparrow.mapper.common.CommonTaskMapper;
@@ -21,7 +22,8 @@ import java.util.List;
  **/
 @Slf4j
 @Component
-public class CommonTaskJob {
+public class CommonTaskJob extends BaseJob {
+
 
 	private static final List<Integer> QUERY_VALID_STATUS_LIST = new ArrayList<>();
 
@@ -33,8 +35,7 @@ public class CommonTaskJob {
 	@Autowired
 	private CommonTaskMapper commonTaskMapper;
 
-	@Scheduled(fixedRate = 1000)
-	public void run() {
+	public void doRun() {
 		CommonTaskConditionEntity commonTaskConditionEntity = new CommonTaskConditionEntity();
 		commonTaskConditionEntity.setStatusList(QUERY_VALID_STATUS_LIST);
 		List<CommonTaskEntity> commonTaskEntities = commonTaskMapper.searchByCondition(commonTaskConditionEntity);
@@ -50,5 +51,11 @@ public class CommonTaskJob {
 			IAsyncTask strategy = AsyncTaskStrategyContextFactory.getInstance().getStrategy(commonTaskEntity.getType());
 			strategy.doTask(commonTaskEntity);
 		}
+	}
+
+	@Override
+	public JobResult doRun(String params) {
+		doRun();
+		return JobResult.SUCCESS;
 	}
 }
