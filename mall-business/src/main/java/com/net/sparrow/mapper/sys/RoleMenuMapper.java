@@ -53,4 +53,19 @@ public interface RoleMenuMapper extends BaseMapper<RoleMenuEntity, RoleMenuCondi
      * @return 部门信息
     */
 	List<RoleMenuEntity> findByIds(List<Long> ids);
+
+	/**
+	 * 批量添加角色菜单关联
+	 * @param list 角色菜单关联
+	 * @return 结果
+	 */
+	int batchInsert(List<RoleMenuEntity> list);
+
+	/**
+	 * 删除角色菜单关联
+	 *
+	 * @param roleIds 角色ID
+	 * @return 结果
+	 */
+	int deleteByRoleIds(List<Long> roleIds);
 }

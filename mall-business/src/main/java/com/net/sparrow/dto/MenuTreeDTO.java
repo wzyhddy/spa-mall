@@ -109,7 +109,18 @@ public class MenuTreeDTO implements Serializable {
      */
     private List<MenuTreeDTO> children;
 
+    @ApiModelProperty("菜单名称")
+    private String label;
 
+    /**
+     * 是否叶子节点
+     */
+    private Boolean leaf;
+
+    /**
+     * 下级菜单数量
+     */
+    private Integer subCount;
     /**
      * 增加添加子菜单的方法
      *

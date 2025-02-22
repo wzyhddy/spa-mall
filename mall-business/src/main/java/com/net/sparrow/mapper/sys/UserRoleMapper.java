@@ -55,4 +55,6 @@ public interface UserRoleMapper extends BaseMapper<UserRoleEntity, UserRoleCondi
 	List<UserRoleEntity> findByIds(List<Long> ids);
 
 	int batchInsert(List<UserRoleEntity> userRoleEntities);
+
+	void deleteByUserId(Long userId);
 }

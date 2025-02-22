@@ -113,4 +113,19 @@ public class UserEntity extends BaseEntity {
 	 */
 	@ApiModelProperty("最后登录时间")
 	private Date lastLoginTime;
+
+	@ApiModelProperty("部门")
+	private DeptEntity dept;
+
+	/**
+	 * 岗位
+	 */
+	@ApiModelProperty("岗位")
+	private List<JobEntity> jobs;
+
+	/**
+	 * 角色列表
+	 */
+	@ApiModelProperty("角色列表")
+	private List<RoleEntity> roles;
 }

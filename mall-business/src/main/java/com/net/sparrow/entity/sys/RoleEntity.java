@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+import java.util.List;
+
 /**
  * 角色实体
  * 
@@ -49,4 +51,10 @@ public class RoleEntity extends BaseEntity {
 	 */
 	@ApiModelProperty("功能权限")
 	private String permission;
+
+	/**
+	 * 菜单
+	 */
+	@ApiModelProperty("菜单")
+	private List<MenuEntity> menus;
 }

@@ -66,4 +66,14 @@ public abstract class FillUserUtil {
         baseEntity.setUpdateUserName(baseEntity.getCreateUserName());
         baseEntity.setUpdateTime(new Date());
     }
+
+    public static JwtUserEntity getCurrentUserInfo() {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        AssertUtil.notNull(authentication, "当前登录状态过期");
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof String) {
+            return null;
+        }
+        return (JwtUserEntity) authentication.getPrincipal();
+    }
 }
