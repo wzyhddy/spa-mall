@@ -279,17 +279,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                 #{validStatus},
             </if>
 
-            <if test="createUserId != null ">
-                #{createUserId},
-            </if>
-
-            <if test="createUserName != null  and createUserName != ''">
-                #{createUserName},
-            </if>
-
-            <if test="createTime != null ">
-                #{createTime},
-            </if>
+            #{CURRENT_USER_ID},
+            #{CURRENT_USER_NAME},
+            now(3),
 
             <if test="updateUserId != null ">
                 #{updateUserId},

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.net.sparrow.entity.ResponsePageEntity;
 import com.net.sparrow.entity.sys.MenuConditionEntity;
@@ -110,6 +111,28 @@ public class MenuController {
 	@ExcelExport(ExcelBizTypeEnum.MENU)
 	public void export(@RequestBody MenuConditionEntity menuConditionEntity) throws IOException {
 
+	}
+
+	/**
+	 * 获取下级菜单
+	 *
+	 * @return 菜单列表
+	 */
+	@ApiOperation(notes = "获取下级菜单", value = "获取下级菜单")
+	@GetMapping("/getChild")
+	public List<Long> getChild(@RequestParam("id") Long id) {
+		return menuService.getChild(id);
+	}
+
+	/**
+	 * 获取逐级加载的菜单
+	 *
+	 * @return 菜单列表
+	 */
+	@ApiOperation(notes = "获取逐级加载的菜单", value = "获取逐级加载的菜单")
+	@PostMapping("/getMenu")
+	public List<MenuTreeDTO> getMenu(@RequestBody MenuConditionEntity menuConditionEntity) {
+		return menuService.getMenu(menuConditionEntity);
 	}
 
 }

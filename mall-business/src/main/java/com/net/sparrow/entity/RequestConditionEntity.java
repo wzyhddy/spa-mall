@@ -32,4 +32,14 @@ public class RequestConditionEntity extends RequestPageEntity {
      * 自定义excel表头列表
      */
     private List<String> customizeColumnNameList;
+
+    /**
+     * 排序字段
+     */
+    private List<String> sortField;
+
+    /**
+     * 查询条件
+     */
+    private String blurry;
 }
