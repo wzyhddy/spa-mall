@@ -1,7 +1,9 @@
 package com.net.sparrow.controller.web;
 
+import com.net.sparrow.annotation.Limit;
 import com.net.sparrow.annotation.NoLogin;
 import com.net.sparrow.dto.web.CityDTO;
+import com.net.sparrow.enums.LimitTypeEnum;
 import com.net.sparrow.helper.GeoIpHelper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -28,6 +30,7 @@ public class GeoIpController {
      * @return 城市
      */
     @NoLogin
+    @Limit(key = "getCity", permitsPerSecond = 20, timeOut = 60, limitType = LimitTypeEnum.IP)
     @ApiOperation(notes = "根据ip获取所在城市", value = "根据ip获取所在城市")
     @GetMapping("/getCity")
     public CityDTO getCity(@RequestParam(value = "ip") String ip) {
