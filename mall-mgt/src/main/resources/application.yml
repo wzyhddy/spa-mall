@@ -32,6 +32,11 @@ spring:
     type: caffeine
     caffeine:
       spec: initialCapacity=50,maximumSize=500,expireAfterWrite=60s
+  elasticsearch:
+    host: 124.221.142.75
+    port: 9200
+    username: elastic
+    password: Elastic_STtwmz
 server:
   port: 8011
 

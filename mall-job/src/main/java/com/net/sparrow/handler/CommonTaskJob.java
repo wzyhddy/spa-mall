@@ -1,4 +1,4 @@
-package com.net.sparrow.job;
+package com.net.sparrow.handler;
 
 import com.net.sparrow.entity.common.CommonTaskConditionEntity;
 import com.net.sparrow.entity.common.CommonTaskEntity;
@@ -10,7 +10,6 @@ import com.net.sparrow.service.task.IAsyncTask;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
