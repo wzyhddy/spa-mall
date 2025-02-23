@@ -177,7 +177,7 @@
     <insert id="insert" parameterType="com.net.sparrow.entity.common.CommonSensitiveWordEntity">
         INSERT INTO common_sensitive_word
         <trim prefix="(" suffix=")" suffixOverrides=",">
-
+            id,
             <if test="type != null ">
                 type,
             </if>
@@ -224,6 +224,7 @@
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{GENERATE_ID},
             <if test="type != null ">
                 #{type},
             </if>

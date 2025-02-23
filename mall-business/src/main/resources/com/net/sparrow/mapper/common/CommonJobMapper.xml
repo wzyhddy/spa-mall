@@ -232,7 +232,7 @@
     <insert id="insert" parameterType="com.net.sparrow.entity.common.CommonJobEntity">
         INSERT INTO common_job
         <trim prefix="(" suffix=")" suffixOverrides=",">
-
+            id,
             <if test="jobName != null  and jobName != ''">
                 job_name,
             </if>
@@ -304,6 +304,7 @@
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{GENERATE_ID},
             <if test="jobName != null  and jobName != ''">
                 #{jobName},
             </if>

@@ -265,7 +265,7 @@
     <insert id="insert" parameterType="com.net.sparrow.entity.common.CommonJobLogEntity">
         INSERT INTO common_job_log
         <trim prefix="(" suffix=")" suffixOverrides=",">
-
+            id,
             <if test="jobId != null ">
                 job_id,
             </if>
@@ -340,6 +340,7 @@
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{GENERATE_ID},
             <if test="jobId != null ">
                 #{jobId},
             </if>

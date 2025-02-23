@@ -1,8 +1,11 @@
 package com.net.sparrow.mybatis;
 
 import com.net.sparrow.entity.auth.JwtUserEntity;
+import com.net.sparrow.helper.IdGenerateHelper;
 import com.net.sparrow.util.FillUserUtil;
+import com.net.sparrow.util.SpringBeanUtil;
 import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.mapping.SqlSource;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.plugin.Intercepts;
@@ -32,7 +35,7 @@ public class UserInterceptor implements Interceptor {
 
 	private static final String CURRENT_USER_ID = "CURRENT_USER_ID";
 	private static final String CURRENT_USER_NAME = "CURRENT_USER_NAME";
-
+	private static final String GENERATE_ID = "GENERATE_ID";
 
 	@Override
 	public Object intercept(Invocation invocation) throws Throwable {
@@ -54,10 +57,10 @@ public class UserInterceptor implements Interceptor {
 						field = DynamicSqlSource.class.getDeclaredField("rootSqlNode");
 						field.setAccessible(true);
 						SqlNode rootSqlNode = (SqlNode) field.get(sqlSource);
-
+						boolean isInsert = SqlCommandType.INSERT.equals(mappedStatement.getSqlCommandType());
 						SqlNode proxySqlNode = (SqlNode) Proxy.newProxyInstance(rootSqlNode.getClass().getClassLoader(),
 								new Class[]{SqlNode.class},
-								new CustomizeInvocationHandler(rootSqlNode));
+								new CustomizeInvocationHandler(rootSqlNode, isInsert));
 						field.set(sqlSource, proxySqlNode);
 					}
 				}
@@ -78,8 +81,11 @@ public class UserInterceptor implements Interceptor {
 
 	private class CustomizeInvocationHandler implements InvocationHandler {
 		private final SqlNode target;
-		private CustomizeInvocationHandler(SqlNode target) {
+		private boolean isInsert;
+
+		private CustomizeInvocationHandler(SqlNode target, boolean isInsert) {
 			this.target = target;
+			this.isInsert = isInsert;
 		}
 		@Override
 		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -88,6 +94,10 @@ public class UserInterceptor implements Interceptor {
 			if (Objects.nonNull(currentUserInfo)) {
 				context.bind(CURRENT_USER_ID, currentUserInfo.getId());
 				context.bind(CURRENT_USER_NAME, currentUserInfo.getUsername());
+			}
+			if (isInsert) {
+				IdGenerateHelper idGenerateHelper = SpringBeanUtil.getBean(IdGenerateHelper.class);
+				context.bind(GENERATE_ID, idGenerateHelper.nextId());
 			}
 			return method.invoke(target, args);
 		}

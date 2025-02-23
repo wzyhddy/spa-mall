@@ -242,7 +242,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="insert" parameterType="com.net.sparrow.entity.mall.ProductEntity">
         INSERT INTO mall_product
         <trim prefix="(" suffix=")" suffixOverrides=",">
-
+            id,
             <if test="categoryId != null ">
                 category_id,
             </if>
@@ -319,6 +319,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{GENERATE_ID},
             <if test="categoryId != null ">
                 #{categoryId},
             </if>
@@ -396,6 +397,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="batchInsert" parameterType="com.net.sparrow.entity.mall.ProductEntity" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO mall_product
         (
+        id,
         category_id,
         unit_id,
         brand_id,
@@ -412,6 +414,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         VALUES
         <foreach collection="list" item="item" separator=",">
             (
+            #{item.id},
             #{item.categoryId},
             #{item.unitId},
             #{item.brandId},

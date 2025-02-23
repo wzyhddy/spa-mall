@@ -167,6 +167,7 @@
     <insert id="insert" parameterType="com.net.sparrow.entity.mall.BrandEntity">
         INSERT INTO mall_brand
         <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
 
             <if test="name != null  and name != ''">
                 name,
@@ -202,13 +203,13 @@
                 update_time,
             </if>
 
-
             <if test="isDel != null ">
                 is_del,
             </if>
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{GENERATE_ID},
             <if test="name != null  and name != ''">
                 #{name},
             </if>

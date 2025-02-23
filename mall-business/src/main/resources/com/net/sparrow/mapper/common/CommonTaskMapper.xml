@@ -232,7 +232,7 @@
     <insert id="insert" parameterType="com.net.sparrow.entity.common.CommonTaskEntity">
         INSERT INTO common_task
         <trim prefix="(" suffix=")" suffixOverrides=",">
-
+            id,
             <if test="name != null  and name != ''">
                 name,
             </if>
@@ -304,6 +304,7 @@
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{GENERATE_ID},
             <if test="name != null  and name != ''">
                 #{name},
             </if>

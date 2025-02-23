@@ -50,6 +50,9 @@ mall:
   mgt:
     geoIpFilePath: D:/IdeaProjects/spa-mall/tmp/geoip2
     taobaoIpUrl: https://ip.taobao.com/outGetIpInfo?ip=%s&accessKey=alibaba-inc
+    id:
+      generate:
+        workerId: 1
 
 oss:
   qiniu:

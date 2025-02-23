@@ -197,7 +197,7 @@
     <insert id="insert" parameterType="com.net.sparrow.entity.sys.DictDetailEntity">
         INSERT INTO sys_dict_detail
         <trim prefix="(" suffix=")" suffixOverrides=",">
-
+            id,
             <if test="dictId != null ">
                 dict_id,
             </if>
@@ -253,6 +253,7 @@
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{GENERATE_ID},
             <if test="dictId != null ">
                 #{dictId},
             </if>
