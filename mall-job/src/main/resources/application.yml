@@ -23,6 +23,11 @@ spring:
     port: 6379
     password: cool
     timeout: 5000
+  elasticsearch:
+    host: 124.221.142.75
+    port: 9200
+    username: elastic
+    password: Elastic_STtwmz
 server:
   port: 8012
 

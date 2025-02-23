@@ -1,4 +1,4 @@
-package com.net.sparrow.job;
+package com.net.sparrow.handler;
 
 import com.net.sparrow.exception.BusinessException;
 import com.net.sparrow.util.ApiResult;
@@ -57,20 +57,4 @@ public class GlobalApiResultHandler implements ResponseBodyAdvice<Object> {
 		return ApiResultUtil.success(body);
 	}
 
-	/**
-	 * 统一处理异常
-	 *
-	 * @param e 异常
-	 * @return API请求响应实体
-	 */
-	@ExceptionHandler(Throwable.class)
-	public ApiResult handleException(Throwable e) {
-		if (e instanceof BusinessException) {
-			BusinessException businessException = (BusinessException) e;
-			log.info("请求出现业务异常：", e);
-			return ApiResultUtil.error(businessException.getCode(), businessException.getMessage());
-		}
-		log.error("请求出现系统异常：", e);
-		return ApiResultUtil.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "服务器内部错误");
-	}
 }
