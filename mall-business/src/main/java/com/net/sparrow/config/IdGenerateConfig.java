@@ -11,13 +11,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class IdGenerateConfig {
 
-    @Value("${mall.mgt.id.generate.workerId:1}")
-    private int workerId;
-    @Value("${mall.mgt.id.generate.dataCenterId:31}")
-    private int dataCenterId;
-
     @Bean
     public SnowFlakeIdWorker snowFlakeIdWorker() {
-        return new SnowFlakeIdWorker(workerId, dataCenterId);
+        return new SnowFlakeIdWorker(0, 0);
     }
 }

@@ -97,19 +97,33 @@ public class SnowFlakeIdWorker {
      * @param workerId     工作ID (0~31)
      * @param datacenterId 数据中心ID (0~31)
      */
-    public SnowFlakeIdWorker(long workerId, long datacenterId) {
+    public SnowFlakeIdWorker(long workerId, long dataCenterId) {
+        initParam(workerId, dataCenterId);
+    }
+
+    private void initParam(long workerId, long dataCenterId) {
         if (workerId > maxWorkerId || workerId < 0) {
             throw new IllegalArgumentException(String.format(
                     "worker Id can't be greater than %d or less than 0",
                     maxWorkerId));
         }
-        if (datacenterId > maxDatacenterId || datacenterId < 0) {
+        if (dataCenterId > maxDatacenterId || dataCenterId < 0) {
             throw new IllegalArgumentException(String.format(
-                    "datacenter Id can't be greater than %d or less than 0",
+                    "dataCenter Id can't be greater than %d or less than 0",
                     maxDatacenterId));
         }
         this.workerId = workerId;
-        this.datacenterId = datacenterId;
+        this.datacenterId = dataCenterId;
+    }
+
+
+    /**
+     * 设置参数
+     *
+     * @param dataCenterId
+     */
+    public void setParam(long workerId, long dataCenterId) {
+        initParam(workerId, dataCenterId);
     }
 
     /**
