@@ -1,5 +1,6 @@
 package com.net.sparrow.service.mall;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +9,7 @@ import java.util.stream.Collectors;
 
 import cn.hutool.core.util.BooleanUtil;
 import com.google.common.collect.Lists;
+import com.net.sparrow.config.BusinessConfig;
 import com.net.sparrow.entity.mall.AttributeConditionEntity;
 import com.net.sparrow.entity.mall.AttributeEntity;
 import com.net.sparrow.entity.mall.AttributeValueConditionEntity;
@@ -21,6 +23,7 @@ import com.net.sparrow.entity.mall.ProductCheckEntity;
 import com.net.sparrow.entity.mall.ProductPhotoEntity;
 import com.net.sparrow.entity.mall.UnitConditionEntity;
 import com.net.sparrow.entity.mall.UnitEntity;
+import com.net.sparrow.es.EsTemplate;
 import com.net.sparrow.exception.BusinessException;
 import com.net.sparrow.helper.ProductHelper;
 import com.net.sparrow.mapper.mall.AttributeMapper;
@@ -32,7 +35,11 @@ import com.net.sparrow.mapper.mall.ProductPhotoMapper;
 import com.net.sparrow.mapper.mall.UnitMapper;
 import com.net.sparrow.service.BaseService;
 import com.net.sparrow.util.AttributeUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.net.sparrow.mapper.mall.ProductMapper;
@@ -52,6 +59,7 @@ import org.springframework.util.StringUtils;
  * @date 2025-02-22 19:02:34
  */
 @Service
+@Slf4j
 public class ProductService extends BaseService< ProductEntity,  ProductConditionEntity> {
 
 	@Autowired
@@ -74,6 +82,42 @@ public class ProductService extends BaseService< ProductEntity,  ProductConditio
 	private TransactionTemplate transactionTemplate;
 	@Autowired
 	private ProductHelper productHelper;
+	@Autowired
+	private EsTemplate esTemplate;
+	@Autowired
+	private BusinessConfig businessConfig;
+
+
+	/**
+	 * 根据条件分页搜索商品列表FromES
+	 *
+	 * @param productConditionEntity 商品信息
+	 * @return 商品集合
+	 */
+	public ResponsePageEntity<ProductEntity> searchFromES(ProductConditionEntity productConditionEntity) {
+		try {
+			SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+			searchSourceBuilder.from(productConditionEntity.getPageBegin());
+			searchSourceBuilder.size(productConditionEntity.getPageSize());
+			if (StringUtils.hasLength(productConditionEntity.getName())) {
+				searchSourceBuilder.query(QueryBuilders.matchPhraseQuery("name", productConditionEntity.getName()));
+			}
+			if (StringUtils.hasLength(productConditionEntity.getModel())) {
+				searchSourceBuilder.query(QueryBuilders.matchPhraseQuery("model", productConditionEntity.getModel()));
+			}
+			searchSourceBuilder.sort("id", SortOrder.DESC);
+			log.info("searchFromES请求参数:", searchSourceBuilder);
+			ResponsePageEntity responsePageEntity = ResponsePageEntity.buildEmpty(productConditionEntity);
+			List<ProductEntity> productEntities = esTemplate.search(businessConfig.getProductEsIndexName(), searchSourceBuilder, ProductEntity.class, responsePageEntity);
+			if (CollectionUtils.isEmpty(productEntities)) {
+				return ResponsePageEntity.buildEmpty(productConditionEntity);
+			}
+			return ResponsePageEntity.build(productConditionEntity, responsePageEntity.getTotalCount(), productEntities);
+		} catch (IOException e) {
+			log.error("从ES中查询商品失败，原因：", e);
+			return ResponsePageEntity.buildEmpty(productConditionEntity);
+		}
+	}
 
 
 	/**

@@ -16,4 +16,9 @@ import org.springframework.stereotype.Component;
 public class BusinessConfig {
 
     private QuartzThreadPoolProperties QuartzThreadPoolConfig = new QuartzThreadPoolProperties();
+
+    /**
+     * 商品搜索index名称
+     */
+    private String productEsIndexName = "product-es-index-v1";
 }
