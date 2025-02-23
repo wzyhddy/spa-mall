@@ -1,5 +1,6 @@
 package com.net.sparrow;
 
+import com.net.sparrow.enable.EnableLimit;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
