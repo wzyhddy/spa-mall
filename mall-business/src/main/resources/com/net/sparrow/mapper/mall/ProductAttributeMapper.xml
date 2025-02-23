@@ -187,7 +187,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="insert" parameterType="com.net.sparrow.entity.mall.ProductAttributeEntity">
         INSERT INTO mall_product_attribute
         <trim prefix="(" suffix=")" suffixOverrides=",">
-
+            id,
             <if test="productId != null ">
                 product_id,
             </if>
@@ -239,6 +239,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{GENERATE_ID},
             <if test="productId != null ">
                 #{productId},
             </if>

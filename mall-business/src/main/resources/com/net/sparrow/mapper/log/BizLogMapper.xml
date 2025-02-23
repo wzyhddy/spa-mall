@@ -252,7 +252,7 @@
     <insert id="insert" parameterType="com.net.sparrow.entity.log.BizLogEntity">
         INSERT INTO biz_log
         <trim prefix="(" suffix=")" suffixOverrides=",">
-
+            id,
             <if test="methodName != null  and methodName != ''">
                 method_name,
             </if>
@@ -334,6 +334,7 @@
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{GENERATE_ID},
             <if test="methodName != null  and methodName != ''">
                 #{methodName},
             </if>

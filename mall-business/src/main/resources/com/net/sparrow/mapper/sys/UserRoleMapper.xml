@@ -112,7 +112,7 @@
     <insert id="insert" parameterType="com.net.sparrow.entity.sys.UserRoleEntity">
         INSERT INTO sys_user_role
         <trim prefix="(" suffix=")" suffixOverrides=",">
-
+            id,
             <if test="userId != null ">
                 user_id,
             </if>
@@ -124,6 +124,7 @@
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{GENERATE_ID},
             <if test="userId != null ">
                 #{userId},
             </if>
@@ -147,9 +148,9 @@
     </select>
 
     <insert id="batchInsert" parameterType="com.net.sparrow.entity.sys.UserRoleEntity">
-        INSERT INTO sys_user_role (user_id,role_id) VALUES
+        INSERT INTO sys_user_role (id,user_id,role_id) VALUES
         <foreach collection="list" item="item"  separator=",">
-            (#{item.userId},#{item.roleId})
+            (#{item.id},#{item.userId},#{item.roleId})
         </foreach>
     </insert>
 </mapper>

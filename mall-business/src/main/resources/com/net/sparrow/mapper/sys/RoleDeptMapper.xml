@@ -101,7 +101,7 @@
     <insert id="insert" parameterType="com.net.sparrow.entity.sys.RoleDeptEntity">
         INSERT INTO sys_role_dept
         <trim prefix="(" suffix=")" suffixOverrides=",">
-
+            id,
             <if test="roleId != null ">
                 role_id,
             </if>
@@ -113,6 +113,7 @@
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{GENERATE_ID},
             <if test="roleId != null ">
                 #{roleId},
             </if>

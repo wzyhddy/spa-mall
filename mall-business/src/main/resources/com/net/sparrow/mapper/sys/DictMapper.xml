@@ -188,7 +188,7 @@
     <insert id="insert" parameterType="com.net.sparrow.entity.sys.DictEntity">
         INSERT INTO sys_dict
         <trim prefix="(" suffix=")" suffixOverrides=",">
-
+            id,
             <if test="parentId != null ">
                 parent_id,
             </if>
@@ -240,6 +240,7 @@
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{GENERATE_ID},
             <if test="parentId != null ">
                 #{parentId},
             </if>

@@ -31,6 +31,7 @@ import com.net.sparrow.enums.TaskStatusEnum;
 import com.net.sparrow.enums.TaskTypeEnum;
 import com.net.sparrow.exception.BusinessException;
 import com.net.sparrow.helper.GeoIpHelper;
+import com.net.sparrow.helper.IdGenerateHelper;
 import com.net.sparrow.helper.TokenHelper;
 import com.net.sparrow.mapper.common.CommonTaskMapper;
 import com.net.sparrow.mapper.sys.DeptMapper;
@@ -125,6 +126,9 @@ public class UserService extends com.net.sparrow.service.BaseService<UserEntity,
 
 	@Autowired
 	private RoleMapper roleMapper;
+
+	@Autowired
+	private IdGenerateHelper idGenerateHelper;
 
 	public TokenEntity login(AuthUserEntity authUserEntity) {
 		String code = redisUtil.get(getCaptchaKey(authUserEntity.getUuid()));
@@ -361,6 +365,7 @@ public class UserService extends com.net.sparrow.service.BaseService<UserEntity,
 		if (CollectionUtils.isNotEmpty(userEntity.getRoleList())) {
 			return userEntity.getRoleList().stream().map(x -> {
 				UserRoleEntity userRoleEntity = new UserRoleEntity();
+				userRoleEntity.setId(idGenerateHelper.nextId());
 				userRoleEntity.setUserId(userEntity.getId());
 				userRoleEntity.setRoleId(x.getId());
 				return userRoleEntity;

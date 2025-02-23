@@ -200,7 +200,7 @@
     <insert id="insert" parameterType="com.net.sparrow.entity.mall.CategoryEntity">
         INSERT INTO mall_category
         <trim prefix="(" suffix=")" suffixOverrides=",">
-
+            id,
             <if test="parentId != null ">
                 parent_id,
             </if>
@@ -257,6 +257,7 @@
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{GENERATE_ID},
             <if test="parentId != null ">
                 #{parentId},
             </if>

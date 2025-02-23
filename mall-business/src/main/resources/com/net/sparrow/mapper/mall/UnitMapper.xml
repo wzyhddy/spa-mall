@@ -167,7 +167,7 @@
     <insert id="insert" parameterType="com.net.sparrow.entity.mall.UnitEntity">
         INSERT INTO mall_unit
         <trim prefix="(" suffix=")" suffixOverrides=",">
-
+            id,
             <if test="name != null  and name != ''">
                 name,
             </if>
@@ -209,6 +209,7 @@
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{GENERATE_ID},
             <if test="name != null  and name != ''">
                 #{name},
             </if>

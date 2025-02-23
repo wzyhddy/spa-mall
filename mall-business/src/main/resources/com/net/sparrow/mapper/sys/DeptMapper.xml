@@ -194,7 +194,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="insert" parameterType="com.net.sparrow.entity.sys.DeptEntity">
         INSERT INTO sys_dept
         <trim prefix="(" suffix=")" suffixOverrides=",">
-
+            id,
             <if test="name != null  and name != ''">
                 name,
             </if>
@@ -246,6 +246,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{GENERATE_ID},
             <if test="name != null  and name != ''">
                 #{name},
             </if>
