@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * 同步商品数据ES
+ * @author 27837
  */
 @Slf4j
 @Component

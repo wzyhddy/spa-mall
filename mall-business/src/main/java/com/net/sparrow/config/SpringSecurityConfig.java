@@ -92,7 +92,8 @@ public class SpringSecurityConfig implements ApplicationContextAware {
 						"/**/*.css",
 						"/**/*.js",
 						"/websocket/**",
-						"/job/**"
+						"/job/**",
+						"/init/**"
 				).permitAll()
 				// swagger 文档
 				.antMatchers("/swagger-ui.html").permitAll()

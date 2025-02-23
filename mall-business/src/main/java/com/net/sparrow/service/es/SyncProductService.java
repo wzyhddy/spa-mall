@@ -1,5 +1,6 @@
 package com.net.sparrow.service.es;
 
+import com.net.sparrow.config.BusinessConfig;
 import com.net.sparrow.constant.NumberConstant;
 import com.net.sparrow.entity.EsBaseEntity;
 import com.net.sparrow.entity.ResponsePageEntity;
@@ -27,8 +28,8 @@ public class SyncProductService {
     @Autowired
     private EsTemplate esTemplate;
 
-    @Value("${mall.mgt.productEsIndexName:product-es-index-v1}")
-    private String productEsIndexName;
+    @Autowired
+    private BusinessConfig businessConfig;
 
     /**
      * 同步商品到ES
@@ -61,6 +62,6 @@ public class SyncProductService {
             return esBaseEntity;
         }).collect(Collectors.toList());
 
-        esTemplate.batchInsert(productEsIndexName, dataList);
+        esTemplate.batchInsert(businessConfig.getProductEsIndexName(), dataList);
     }
 }
