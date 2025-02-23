@@ -1,16 +1,13 @@
 package com.net.sparrow.job;
 
-import com.net.sparrow.exception.BusinessException;
 import com.net.sparrow.util.ApiResult;
 import com.net.sparrow.util.ApiResultUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -57,20 +54,4 @@ public class GlobalApiResultHandler implements ResponseBodyAdvice<Object> {
 		return ApiResultUtil.success(body);
 	}
 
-	/**
-	 * 统一处理异常
-	 *
-	 * @param e 异常
-	 * @return API请求响应实体
-	 */
-	@ExceptionHandler(Throwable.class)
-	public ApiResult handleException(Throwable e) {
-		if (e instanceof BusinessException) {
-			BusinessException businessException = (BusinessException) e;
-			log.info("请求出现业务异常：", e);
-			return ApiResultUtil.error(businessException.getCode(), businessException.getMessage());
-		}
-		log.error("请求出现系统异常：", e);
-		return ApiResultUtil.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "服务器内部错误");
-	}
 }

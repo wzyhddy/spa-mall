@@ -14,7 +14,7 @@ import java.util.List;
 
 public abstract class ExcelUtil {
 
-    public static String TEMP_FILE_PATH = "D:/IdeaProjects/spa_mall/tmp/";
+    public static String TEMP_FILE_PATH = "/tmp/";
 
     private static final String UTF8 = StandardCharsets.UTF_8.toString();
 
