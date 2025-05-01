@@ -1,7 +1,9 @@
 package com.net.sparrow.controller.sys;
 
+import com.net.sparrow.annotation.ExcelExport;
 import com.net.sparrow.annotation.NoLogin;
 import com.net.sparrow.dto.MenuTreeDTO;
+import com.net.sparrow.enums.ExcelBizTypeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -108,8 +110,9 @@ public class MenuController {
 
 	@ApiOperation(notes = "导出菜单数据", value = "导出菜单数据")
 	@PostMapping("/export")
+	@ExcelExport(ExcelBizTypeEnum.MENU)
 	public void export(HttpServletResponse response, MenuConditionEntity menuConditionEntity) throws IOException {
-		menuService.export(response, menuConditionEntity);
+
 	}
 
 }

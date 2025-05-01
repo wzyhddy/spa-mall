@@ -1,27 +1,27 @@
 package com.net.sparrow.service.sys;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import cn.hutool.core.util.BooleanUtil;
 import com.net.sparrow.dto.DeptTreeDTO;
+import com.net.sparrow.entity.ResponsePageEntity;
+import com.net.sparrow.entity.sys.DeptConditionEntity;
+import com.net.sparrow.entity.sys.DeptEntity;
+import com.net.sparrow.mapper.BaseMapper;
+import com.net.sparrow.mapper.sys.DeptMapper;
+import com.net.sparrow.service.BaseService;
+import com.net.sparrow.util.AssertUtil;
 import com.net.sparrow.util.BetweenTimeUtil;
 import com.net.sparrow.util.ExcelUtil;
+import com.net.sparrow.util.FillUserUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.net.sparrow.mapper.sys.DeptMapper;
-import com.net.sparrow.entity.sys.DeptConditionEntity;
-import com.net.sparrow.entity.sys.DeptEntity;
-import com.net.sparrow.entity.ResponsePageEntity;
-import com.net.sparrow.util.AssertUtil;
-import com.net.sparrow.util.FillUserUtil;
-import com.net.sparrow.mapper.BaseMapper;
-import com.net.sparrow.service.BaseService;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * 部门 服务层
@@ -30,19 +30,19 @@ import javax.servlet.http.HttpServletResponse;
  * @date 2025-02-17 20:14:34
  */
 @Service
-public class DeptService extends BaseService< DeptEntity,  DeptConditionEntity> {
+public class DeptService extends BaseService<DeptEntity, DeptConditionEntity> {
 
 	@Autowired
 	private DeptMapper deptMapper;
 
 	/**
-     * 查询部门信息
-     *
-     * @param id 部门ID
-     * @return 部门信息
-     */
+	 * 查询部门信息
+	 *
+	 * @param id 部门ID
+	 * @return 部门信息
+	 */
 	public DeptEntity findById(Long id) {
-	    return deptMapper.findById(id);
+		return deptMapper.findById(id);
 	}
 
 	/**
@@ -71,7 +71,7 @@ public class DeptService extends BaseService< DeptEntity,  DeptConditionEntity> 
 			return Collections.emptyList();
 		}
 
-		if (queryTree) {
+		if (BooleanUtil.isTrue(queryTree)) {
 			for (DeptTreeDTO deptTreeDTO : deptTreeDTOList) {
 				buildChildren(deptTreeDTO);
 			}
@@ -84,7 +84,7 @@ public class DeptService extends BaseService< DeptEntity,  DeptConditionEntity> 
 		deptConditionEntity.setPid(deptTreeDTO.getId());
 		deptConditionEntity.setPageSize(0);
 		List<DeptEntity> deptEntities = deptMapper.searchByCondition(deptConditionEntity);
-		if(CollectionUtils.isEmpty(deptEntities)) {
+		if (CollectionUtils.isEmpty(deptEntities)) {
 			for (DeptEntity deptEntity : deptEntities) {
 				DeptTreeDTO childDeptTreeDTO = convertToDeptTreeDTO(deptEntity);
 				deptTreeDTO.addChildren(childDeptTreeDTO);
@@ -102,32 +102,39 @@ public class DeptService extends BaseService< DeptEntity,  DeptConditionEntity> 
 		deptTreeDTO.setCreateTime(deptEntity.getCreateTime());
 		return deptTreeDTO;
 	}
+
 	/**
-     * 新增部门
-     *
-     * @param deptEntity 部门信息
-     * @return 结果
-     */
+	 * 新增部门
+	 *
+	 * @param deptEntity 部门信息
+	 * @return 结果
+	 */
 	public int insert(DeptEntity deptEntity) {
-	    return deptMapper.insert(deptEntity);
+		if (Objects.isNull(deptEntity.getPid())) {
+			deptEntity.setPid(0L);
+		}
+		FillUserUtil.fillCreateUserInfo(deptEntity);
+		return deptMapper.insert(deptEntity);
 	}
 
 	/**
-     * 修改部门
-     *
-     * @param deptEntity 部门信息
-     * @return 结果
-     */
+	 * 修改部门
+	 *
+	 * @param deptEntity 部门信息
+	 * @return 结果
+	 */
 	public int update(DeptEntity deptEntity) {
-	    return deptMapper.update(deptEntity);
+		AssertUtil.notNull(deptEntity.getId(), "ID不能为空");
+		FillUserUtil.fillUpdateUserInfo(deptEntity);
+		return deptMapper.update(deptEntity);
 	}
 
 	/**
-     * 批量删除部门对象
-     *
-     * @param ids 系统ID集合
-     * @return 结果
-     */
+	 * 批量删除部门对象
+	 *
+	 * @param ids 系统ID集合
+	 * @return 结果
+	 */
 	public int deleteByIds(List<Long> ids) {
 		List<DeptEntity> entities = deptMapper.findByIds(ids);
 		AssertUtil.notEmpty(entities, "部门已被删除");
