@@ -1,18 +1,20 @@
 package com.net.sparrow.service.sys;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import cn.hutool.core.util.IdUtil;
+import com.net.sparrow.entity.ResponsePageEntity;
 import com.net.sparrow.entity.auth.AuthUserEntity;
 import com.net.sparrow.entity.auth.CaptchaEntity;
 import com.net.sparrow.entity.auth.JwtUserEntity;
 import com.net.sparrow.entity.auth.TokenEntity;
+import com.net.sparrow.entity.sys.UserConditionEntity;
+import com.net.sparrow.entity.sys.UserEntity;
 import com.net.sparrow.entity.sys.UserRoleEntity;
 import com.net.sparrow.exception.BusinessException;
 import com.net.sparrow.helper.TokenHelper;
+import com.net.sparrow.mapper.BaseMapper;
+import com.net.sparrow.mapper.sys.UserMapper;
 import com.net.sparrow.mapper.sys.UserRoleMapper;
+import com.net.sparrow.util.AssertUtil;
 import com.net.sparrow.util.FillUserUtil;
 import com.net.sparrow.util.PasswordUtil;
 import com.net.sparrow.util.RedisUtil;
@@ -29,17 +31,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.stereotype.Service;
-import com.net.sparrow.mapper.sys.UserMapper;
-import com.net.sparrow.entity.sys.UserConditionEntity;
-import com.net.sparrow.entity.sys.UserEntity;
-import com.net.sparrow.entity.ResponsePageEntity;
-import com.net.sparrow.util.AssertUtil;
-import com.net.sparrow.mapper.BaseMapper;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 用户 服务层
@@ -89,12 +87,17 @@ public class UserService extends com.net.sparrow.service.BaseService<UserEntity,
 			UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(authUserEntity.getUsername(), decodeRsaPassword);
 			Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
+			//这里就是 Authentication 内部保存的 UserDetail 对象
+			//getPrincipal: 获取用户身份信息，在未认证的情况下获取到的是用户名，在已认证的情况下获取到的是 UserDetails。
+			//getDetails: 获取用户的额外信息，（这部分信息可以是我们的用户表中的信息）。
+			// getAuthorities: 获取用户权限，一般情况下获取到的是用户的角色信息。
+			//getCredentials: 获取证明用户认证的信息，通常情况下获取到的是密码等信息。
 			JwtUserEntity jwtUserEntity = (JwtUserEntity) (authentication.getPrincipal());
 			String token = tokenHelper.generateToken(jwtUserEntity);
 			redisUtil.del(getCaptchaKey(authUserEntity.getUuid()));
 			List<String> roles = jwtUserEntity.getAuthorities().stream().map(SimpleGrantedAuthority::getAuthority).collect(Collectors.toList());
 			return new TokenEntity(authUserEntity.getUsername(), token, roles);
-		}catch (Exception e) {
+		} catch (Exception e) {
 			log.info("登录失败：", e);
 			throw new BusinessException(HttpStatus.FORBIDDEN.value(), " 用户名或密码错误");
 		}

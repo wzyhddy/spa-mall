@@ -151,7 +151,6 @@ public class TokenHelper {
 		return claims;
 	}
 
-
 	public String getCurrentUsername() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		AssertUtil.notNull(authentication, "当前登录状态过期");
