@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 /**
  * @Author: Sparrow
@@ -51,7 +52,7 @@ public class CommonTaskAspect {
 				ExcelBizTypeEnum excelBizTypeEnum = method.getAnnotation(ExcelExport.class).value();
 				CommonTaskEntity commonTaskEntity = createCommonTaskEntity(excelBizTypeEnum);
 				if(ArrayUtil.isNotEmpty(arguments)) {
-					Object requestParam = arguments[1];
+					Object requestParam = arguments[0];
 					commonTaskEntity.setRequestParam(JSONUtil.toJsonStr(requestParam));
 				}
 				commonTaskMapper.insert(commonTaskEntity);

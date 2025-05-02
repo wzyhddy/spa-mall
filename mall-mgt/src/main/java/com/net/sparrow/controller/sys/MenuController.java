@@ -111,8 +111,7 @@ public class MenuController {
 	@ApiOperation(notes = "导出菜单数据", value = "导出菜单数据")
 	@PostMapping("/export")
 	@ExcelExport(ExcelBizTypeEnum.MENU)
-	public void export(HttpServletResponse response, MenuConditionEntity menuConditionEntity) throws IOException {
-
+	public void export(@RequestBody MenuConditionEntity menuConditionEntity) throws IOException {
 	}
 
 }
