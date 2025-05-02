@@ -54,6 +54,18 @@ public class DeptTreeDTO {
     private Date createTime;
 
     /**
+     * 是否叶子节点
+     */
+    @ApiModelProperty("是否叶子节点")
+    private Boolean leaf;
+
+    /**
+     * 部门层级
+     */
+    @ApiModelProperty("部门层级")
+    private Integer level;
+
+    /**
      * 子部门
      */
     private List<DeptTreeDTO> children;

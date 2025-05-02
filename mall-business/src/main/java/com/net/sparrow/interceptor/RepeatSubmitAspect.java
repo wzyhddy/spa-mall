@@ -31,6 +31,7 @@ public class RepeatSubmitAspect {
 
 	private static final String REPEAT_SUBMIT_PREFIX = "repeatSubmit";
 
+	private static final String REPEAT_SUBMIT_DEFAULT_KEY = "1";
 	@Autowired
 	private RedisUtil redisUtil;
 
@@ -59,7 +60,7 @@ public class RepeatSubmitAspect {
 		for (Method method : methods) {
 			if (method.getName().equals(methodName) && method.isAnnotationPresent(RepeatSubmit.class)) {
 				int second = method.getAnnotation(RepeatSubmit.class).second();
-				redisUtil.set(key, "1", second);
+				redisUtil.set(key, REPEAT_SUBMIT_DEFAULT_KEY, second);
 				return;
 			}
 		}

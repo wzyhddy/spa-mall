@@ -4,6 +4,8 @@ import com.net.sparrow.entity.RequestConditionEntity;
 import com.net.sparrow.entity.RequestPageEntity;
 import lombok.Data;
 import java.util.Date;
+import java.util.List;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -16,8 +18,6 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel("部门查询条件实体")
 @Data
 public class DeptConditionEntity extends RequestConditionEntity {
-	
-
 	/**
 	 *  ID
      */
@@ -78,6 +78,11 @@ public class DeptConditionEntity extends RequestConditionEntity {
 	@ApiModelProperty("修改时间")
 	private Date updateTime;
 
+	/**
+	 * idList
+	 */
+	@ApiModelProperty("idList")
+	private List<Long> idList;
 	/**
 	 *  是否删除 1：已删除 0：未删除
      */

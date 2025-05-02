@@ -43,55 +43,63 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <sql id="queryWhere">
         <where>
-            
+
             <if test="id != null ">
                 AND id = #{id}
             </if>
-            
+
             <if test="name != null  and name != ''">
-                AND name = #{name}
+                AND name LIKE CONCAT ('%', #{name},'%')
             </if>
-            
+
             <if test="sort != null ">
                 AND sort = #{sort}
             </if>
-            
+
             <if test="deptId != null ">
                 AND dept_id = #{deptId}
             </if>
-            
+
             <if test="validStatus != null ">
                 AND valid_status = #{validStatus}
             </if>
-            
+
+            <if test="createBeginTime != null and createBeginTime !=''">
+                AND create_time >= #{createBeginTime}
+            </if>
+
+            <if test="createEndTime != null and createEndTime !=''">
+                AND create_time <![CDATA[<]]> #{createEndTime}
+            </if>
+
             <if test="createUserId != null ">
                 AND create_user_id = #{createUserId}
             </if>
-            
+
             <if test="createUserName != null  and createUserName != ''">
                 AND create_user_name = #{createUserName}
             </if>
-            
+
             <if test="createTime != null ">
                 AND create_time = #{createTime}
             </if>
-            
+
             <if test="updateUserId != null ">
                 AND update_user_id = #{updateUserId}
             </if>
-            
+
             <if test="updateUserName != null  and updateUserName != ''">
                 AND update_user_name = #{updateUserName}
             </if>
-            
+
             <if test="updateTime != null ">
                 AND update_time = #{updateTime}
             </if>
-            
+
             <if test="isDel != null ">
                 AND is_del = #{isDel}
             </if>
-                        AND is_del = 0
+            AND is_del = 0
         </where>
     </sql>
 
@@ -271,17 +279,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                 #{validStatus},
             </if>
 
-            <if test="createUserId != null ">
-                #{createUserId},
-            </if>
-
-            <if test="createUserName != null  and createUserName != ''">
-                #{createUserName},
-            </if>
-
-            <if test="createTime != null ">
-                #{createTime},
-            </if>
+            #{CURRENT_USER_ID},
+            #{CURRENT_USER_NAME},
+            now(3),
 
             <if test="updateUserId != null ">
                 #{updateUserId},

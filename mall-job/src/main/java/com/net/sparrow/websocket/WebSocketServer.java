@@ -57,16 +57,12 @@ public class WebSocketServer {
 		this.session = session;
 		this.userId = userId;
 		if (webSocketMap.containsKey(userId)) {
-			WebSocketServer oldServer = webSocketMap.get(userId);
-			try {
-				oldServer.session.close();
-			} catch (IOException e) {
-				log.error("关闭旧连接失败, userId: " + userId, e);
-			}
 			webSocketMap.remove(userId);
+		} else {
+			webSocketMap.put(userId, this);
+			addOnlineCount();
 		}
-		webSocketMap.put(userId, this);
-		addOnlineCount();
+
 		log.info("用户连接:" + userId + ",当前在线人数为:" + getOnlineCount());
 		try {
 			HashMap<Object, Object> map = new HashMap<>();
