@@ -1,4 +1,4 @@
-package com.net.sparrow.dto;
+package com.net.sparrow.dto.sys;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

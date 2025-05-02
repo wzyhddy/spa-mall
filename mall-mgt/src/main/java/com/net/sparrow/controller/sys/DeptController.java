@@ -1,6 +1,6 @@
 package com.net.sparrow.controller.sys;
 
-import com.net.sparrow.dto.DeptTreeDTO;
+import com.net.sparrow.dto.sys.DeptTreeDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
