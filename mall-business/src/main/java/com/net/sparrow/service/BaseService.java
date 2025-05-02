@@ -55,14 +55,14 @@ public abstract class BaseService<K, V> {
 		return false;
 	}
 
-	public void export(V v, String fileName, String clazzName) {
+	public String export(V v, String fileName, String clazzName) {
 		if (customizeExport(v)) {
-			return;
+			return null;
 		}
-		doExport(v, fileName, clazzName);
+		return doExport(v, fileName, clazzName);
 	}
 
-	private void doExport(V v, String fileName, String clazzName) {
+	private String doExport(V v, String fileName, String clazzName) {
 		RequestConditionEntity conditionEntity = (RequestConditionEntity) v;
 		BetweenTimeUtil.parseTime(conditionEntity);
 		int totalCount = getBaseMapper().searchCount(conditionEntity);
@@ -102,6 +102,7 @@ public abstract class BaseService<K, V> {
 			}
 		}
 		excelWriter.finish();
+		return downloadName;
 	}
 
 	private List<List<String>> customizeHeader(RequestConditionEntity conditionEntity) {
