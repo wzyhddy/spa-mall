@@ -2,12 +2,14 @@ package com.net.sparrow.service.task;
 
 import cn.hutool.json.JSONUtil;
 import com.net.sparrow.annotation.AsyncTask;
+import com.net.sparrow.config.RabbitConfig;
 import com.net.sparrow.entity.common.CommonNotifyEntity;
 import com.net.sparrow.entity.common.CommonTaskEntity;
 import com.net.sparrow.enums.ExcelBizTypeEnum;
 import com.net.sparrow.enums.TaskStatusEnum;
 import com.net.sparrow.enums.TaskTypeEnum;
 import com.net.sparrow.exception.BusinessException;
+import com.net.sparrow.helper.MqHelper;
 import com.net.sparrow.mapper.common.CommonNotifyMapper;
 import com.net.sparrow.mapper.common.CommonTaskMapper;
 import com.net.sparrow.service.BaseService;
@@ -39,6 +41,8 @@ public class ExcelExportTask implements IAsyncTask {
     private CommonNotifyMapper commonNotifyMapper;
     @Autowired
     private TransactionTemplate transactionTemplate;
+    @Autowired
+    private MqHelper mqHelper;
 
 
     @Override
@@ -86,19 +90,18 @@ public class ExcelExportTask implements IAsyncTask {
 
                 commonTaskEntity.setUpdateTime(new Date());
 
-                transactionTemplate.execute((status) -> {
+                CommonNotifyEntity commonNotifyEntity = transactionTemplate.execute((status) -> {
                     commonTaskMapper.update(commonTaskEntity);
-                    saveNotifyMessage(commonTaskEntity);
-                    return Boolean.TRUE;
+                    return saveNotifyMessage(commonTaskEntity);
                 });
-                return;
+                mqHelper.send(RabbitConfig.EXCEL_EXPORT_EXCHANGE,getRoutingKey(commonTaskEntity.getId()),commonNotifyEntity);
             }
         }
 
     }
 
 
-    private void saveNotifyMessage(CommonTaskEntity commonTaskEntity) {
+    private CommonNotifyEntity saveNotifyMessage(CommonTaskEntity commonTaskEntity) {
         CommonNotifyEntity commonNotifyEntity = new CommonNotifyEntity();
         commonNotifyEntity.setTitle("excel导出通知");
         commonNotifyEntity.setContent(getContent(commonTaskEntity));
@@ -111,6 +114,11 @@ public class ExcelExportTask implements IAsyncTask {
         commonNotifyEntity.setCreateTime(new Date());
         commonNotifyEntity.setIsDel(0);
         commonNotifyMapper.insert(commonNotifyEntity);
+        return commonNotifyEntity;
+    }
+
+    private String getRoutingKey(Long id) {
+        return String.format("excel_export.%s", id);
     }
 
     private String getContent(CommonTaskEntity commonTaskEntity) {
