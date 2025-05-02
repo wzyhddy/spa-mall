@@ -1,12 +1,14 @@
-package com.net.sparrow.handler;
+package com.net.sparrow.job;
 
 import cn.hutool.json.JSONUtil;
+import com.net.sparrow.entity.common.CommonNotifyEntity;
 import com.net.sparrow.entity.common.CommonTaskConditionEntity;
 import com.net.sparrow.entity.common.CommonTaskEntity;
 import com.net.sparrow.enums.ExcelBizTypeEnum;
 import com.net.sparrow.enums.TaskStatusEnum;
 import com.net.sparrow.exception.BusinessException;
 import com.net.sparrow.interceptor.CommonTaskAspect;
+import com.net.sparrow.mapper.common.CommonNotifyMapper;
 import com.net.sparrow.mapper.common.CommonTaskMapper;
 import com.net.sparrow.service.BaseService;
 import com.net.sparrow.util.DateFormatUtil;
@@ -17,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -32,7 +35,7 @@ import static com.net.sparrow.constant.NumberConstant.NUMBER_3;
  **/
 @Slf4j
 @Component
-public class CommonTaskHandler {
+public class CommonTaskJob {
 
 	private static final List<Integer> QUERY_VALID_STATUS_LIST = new ArrayList<>();
 
@@ -43,10 +46,14 @@ public class CommonTaskHandler {
 
 	@Autowired
 	private CommonTaskMapper commonTaskMapper;
-	@Autowired
-	private CommonTaskAspect commonTaskAspect;
 
-	@Scheduled(fixedRate = 60000)
+	@Autowired
+	private CommonNotifyMapper commonNotifyMapper;
+
+	@Autowired
+	private TransactionTemplate transactionTemplate;
+
+	@Scheduled(fixedRate = 10000)
 	public void run() {
 		CommonTaskConditionEntity conditionEntity = new CommonTaskConditionEntity();
 		conditionEntity.setStatusList(QUERY_VALID_STATUS_LIST);
@@ -81,7 +88,9 @@ public class CommonTaskHandler {
 					String serviceName = this.getServiceName(requestEntity);
 					BaseService baseService = (BaseService) SpringBeanUtil.getBean(serviceName);
 					String fileName = getFileName(value.getDesc());
-					baseService.export(bean, fileName, this.getEntityName(requestEntity));
+					String fileUrl = baseService.export(bean, fileName, this.getEntityName(requestEntity));
+					//执行成功
+					commonTaskEntity.setFileUrl(fileUrl);
 					commonTaskEntity.setStatus(TaskStatusEnum.SUCCESS.getValue());
 				} catch (Exception e) {
 					log.error("数据导出异常，原因：", e);
@@ -93,10 +102,38 @@ public class CommonTaskHandler {
 					}
 				}
 				commonTaskEntity.setUpdateTime(new Date());
-				commonTaskMapper.update(commonTaskEntity);
+				transactionTemplate.execute((status) -> {
+					commonTaskMapper.update(commonTaskEntity);
+					saveNotifyMessage(commonTaskEntity);
+					return Boolean.TRUE;
+				});
 				return;
 			}
 		}
+	}
+
+	private void saveNotifyMessage(CommonTaskEntity commonTaskEntity) {
+		CommonNotifyEntity commonNotifyEntity = new CommonNotifyEntity();
+		commonNotifyEntity.setTitle("excel导出通知");
+		commonNotifyEntity.setContent(getContent(commonTaskEntity));
+		commonNotifyEntity.setToUserId(commonTaskEntity.getCreateUserId());
+		commonNotifyEntity.setIsPush(0);
+		commonNotifyEntity.setType(1);
+		commonNotifyEntity.setReadStatus(0);
+		commonNotifyEntity.setCreateUserId(commonTaskEntity.getCreateUserId());
+		commonNotifyEntity.setCreateUserName(commonTaskEntity.getCreateUserName());
+		commonNotifyEntity.setCreateTime(new Date());
+		commonNotifyEntity.setIsDel(0);
+		commonNotifyMapper.insert(commonNotifyEntity);
+	}
+
+	private String getContent(CommonTaskEntity commonTaskEntity) {
+		StringBuilder contentBuilder = new StringBuilder();
+		contentBuilder.append("成功导出excel文件：")
+				.append(commonTaskEntity.getName())
+				.append("，下载地址：")
+				.append(commonTaskEntity.getFileUrl());
+		return contentBuilder.toString();
 	}
 
 	private String getServiceName(String requestEntity) {

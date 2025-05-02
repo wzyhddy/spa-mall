@@ -8,3 +8,10 @@ spring:
 
 server:
   port: 8012
+
+logging:
+  level:
+    com:
+      net:
+        sparrow:
+          mapper: debug
