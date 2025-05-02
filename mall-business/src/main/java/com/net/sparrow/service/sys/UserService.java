@@ -12,6 +12,8 @@ import com.net.sparrow.entity.auth.JwtUserEntity;
 import com.net.sparrow.entity.auth.TokenEntity;
 import com.net.sparrow.entity.common.CommonTaskEntity;
 import com.net.sparrow.entity.email.RemoteLoginEmailEntity;
+import com.net.sparrow.entity.sys.DeptConditionEntity;
+import com.net.sparrow.entity.sys.DeptEntity;
 import com.net.sparrow.entity.sys.UserConditionEntity;
 import com.net.sparrow.entity.sys.UserEntity;
 import com.net.sparrow.entity.sys.UserRoleEntity;
@@ -23,6 +25,7 @@ import com.net.sparrow.helper.GeoIpHelper;
 import com.net.sparrow.helper.TokenHelper;
 import com.net.sparrow.mapper.BaseMapper;
 import com.net.sparrow.mapper.common.CommonTaskMapper;
+import com.net.sparrow.mapper.sys.DeptMapper;
 import com.net.sparrow.mapper.sys.UserMapper;
 import com.net.sparrow.mapper.sys.UserRoleMapper;
 import com.net.sparrow.util.AssertUtil;
@@ -54,6 +57,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -92,7 +96,8 @@ public class UserService extends com.net.sparrow.service.BaseService<UserEntity,
 
 	@Autowired
 	private GeoIpHelper geoIpHelper;
-
+	@Autowired
+	private DeptMapper deptMapper;
 	@Autowired
 	private PasswordUtil passwordUtil;
 	@Autowired
@@ -122,7 +127,7 @@ public class UserService extends com.net.sparrow.service.BaseService<UserEntity,
 					.getRequest();
 			String ip = IpUtil.getIpAddr(httpServletRequest);
 			CityDTO cityDTO = geoIpHelper.getCity(ip);
-			if(Objects.nonNull(cityDTO)) {
+			if (Objects.nonNull(cityDTO)) {
 				String city = cityDTO.getCity();
 				validateRemoteLogin(userEntity, city);
 				userEntity.setLastLoginCity(city);
@@ -180,7 +185,31 @@ public class UserService extends com.net.sparrow.service.BaseService<UserEntity,
 			return ResponsePageEntity.buildEmpty(userConditionEntity);
 		}
 		List<UserEntity> dataList = userMapper.searchByCondition(userConditionEntity);
+		fillData(dataList);
 		return ResponsePageEntity.build(userConditionEntity, count, dataList);
+	}
+
+	private void fillData(List<UserEntity> dataList) {
+		if (CollectionUtils.isEmpty(dataList)) {
+			return;
+		}
+		List<Long> deptIdList = dataList.stream().filter(x -> Objects.nonNull(x.getDeptId())).map(UserEntity::getDeptId).collect(Collectors.toList());
+		if (CollectionUtils.isEmpty(deptIdList)) {
+			return;
+		}
+		DeptConditionEntity deptConditionEntity = new DeptConditionEntity();
+		deptConditionEntity.setIdList(deptIdList);
+		List<DeptEntity> deptEntities = deptMapper.searchByCondition(deptConditionEntity);
+		Map<Long, List<DeptEntity>> deptMap = deptEntities.stream().collect(Collectors.groupingBy(DeptEntity::getId));
+		for (UserEntity userEntity : dataList) {
+			if (Objects.isNull(userEntity.getDeptId())) {
+				continue;
+			}
+			List<DeptEntity> entities = deptMap.get(userEntity.getDeptId());
+			if (CollectionUtils.isNotEmpty(entities)) {
+				userEntity.setDeptName(entities.get(0).getName());
+			}
+		}
 	}
 
 	/**

@@ -104,4 +104,16 @@ public class DeptController {
 	public void export(HttpServletResponse response, DeptConditionEntity deptConditionEntity) throws IOException {
 		deptService.export(response, deptConditionEntity);
 	}
+	/**
+	 * 查询部门树
+	 *
+	 * @param deptConditionEntity 条件
+	 * @return 部门树
+	 */
+	@ApiOperation(notes = "查询部门树", value = "查询部门树")
+	@PostMapping("/searchByTree")
+	public List<DeptTreeDTO> searchByTree(@RequestBody DeptConditionEntity deptConditionEntity) {
+		return deptService.searchByTree(deptConditionEntity);
+	}
+
 }

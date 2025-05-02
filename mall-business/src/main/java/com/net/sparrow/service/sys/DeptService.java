@@ -80,16 +80,19 @@ public class DeptService extends BaseService<DeptEntity, DeptConditionEntity> {
 	}
 
 	private void buildChildren(DeptTreeDTO deptTreeDTO) {
+		deptTreeDTO.setLeaf(false);
 		DeptConditionEntity deptConditionEntity = new DeptConditionEntity();
 		deptConditionEntity.setPid(deptTreeDTO.getId());
 		deptConditionEntity.setPageSize(0);
 		List<DeptEntity> deptEntities = deptMapper.searchByCondition(deptConditionEntity);
-		if (CollectionUtils.isEmpty(deptEntities)) {
+		if (CollectionUtils.isNotEmpty(deptEntities)) {
 			for (DeptEntity deptEntity : deptEntities) {
 				DeptTreeDTO childDeptTreeDTO = convertToDeptTreeDTO(deptEntity);
 				deptTreeDTO.addChildren(childDeptTreeDTO);
 				buildChildren(childDeptTreeDTO);
 			}
+		} else {
+			deptTreeDTO.setLeaf(true);
 		}
 	}
 
@@ -154,5 +157,13 @@ public class DeptService extends BaseService<DeptEntity, DeptConditionEntity> {
 		deptConditionEntity.setPageSize(0);
 		List<DeptEntity> deptEntities = deptMapper.searchByCondition(deptConditionEntity);
 		ExcelUtil.exportExcel("部门数据", DeptEntity.class, deptEntities, response);
+	}
+
+	public List<DeptTreeDTO> searchByTree(DeptConditionEntity deptConditionEntity) {
+		if (Objects.isNull(deptConditionEntity.getPid())) {
+			deptConditionEntity.setPid(0L);
+		}
+		List<DeptEntity> dataList = deptMapper.searchByCondition(deptConditionEntity);
+		return buildDeptTree(dataList, true);
 	}
 }

@@ -1,6 +1,6 @@
 package com.net.sparrow.entity.sys;
 
-import com.net.sparrow.entity.RequestPageEntity;
+import com.net.sparrow.entity.RequestConditionEntity;
 import lombok.Data;
 import java.util.Date;
 import io.swagger.annotations.ApiModel;
@@ -14,8 +14,7 @@ import io.swagger.annotations.ApiModelProperty;
  */
 @ApiModel("岗位查询条件实体")
 @Data
-public class JobConditionEntity extends RequestPageEntity {
-	
+public class JobConditionEntity extends RequestConditionEntity {
 
 	/**
 	 *  ID
