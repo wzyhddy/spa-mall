@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 
 @ApiModel("任务查询条件实体")
@@ -45,6 +46,10 @@ public class CommonTaskConditionEntity extends RequestPageEntity {
     @ApiModelProperty("执行状态 0：待执行 1：执行中 2：成功 3：失败")
     private Integer status;
 
+    /**
+     * 执行状态集合
+     */
+    private List<Integer> statusList;
     /**
      * 失败次数
      */

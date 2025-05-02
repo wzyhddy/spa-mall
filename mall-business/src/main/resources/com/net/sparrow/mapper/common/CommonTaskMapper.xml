@@ -68,6 +68,13 @@
                 AND status = #{status}
             </if>
 
+            <if test="statusList != null and statusList.size()>0">
+                AND status IN
+                <foreach collection="statusList" item="status" open="(" close=")" separator=",">
+                    #{status}
+                </foreach>
+            </if>
+
             <if test="failureCount != null ">
                 AND failure_count = #{failureCount}
             </if>
