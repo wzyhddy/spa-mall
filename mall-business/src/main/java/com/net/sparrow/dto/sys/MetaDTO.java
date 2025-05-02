@@ -1,4 +1,4 @@
-package com.net.sparrow.dto;
+package com.net.sparrow.dto.sys;
 
 import lombok.Data;
 

@@ -65,7 +65,7 @@ public class CommonTaskAspect {
 		commonTaskEntity.setName(getTaskName(excelBizTypeEnum));
 		commonTaskEntity.setStatus(TaskStatusEnum.WAITING.getValue());
 		commonTaskEntity.setFailureCount(0);
-		commonTaskEntity.setType(TaskTypeEnum.MENU.getValue());
+		commonTaskEntity.setType(TaskTypeEnum.EXPORT_EXCEL.getValue());
 		commonTaskEntity.setBizType(excelBizTypeEnum.getValue());
 		FillUserUtil.fillCreateUserInfo(commonTaskEntity);
 		return commonTaskEntity;

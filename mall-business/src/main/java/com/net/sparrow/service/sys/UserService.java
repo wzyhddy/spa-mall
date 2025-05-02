@@ -1,21 +1,34 @@
 package com.net.sparrow.service.sys;
 
+import cn.hutool.core.date.DateUnit;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.json.JSONUtil;
+import com.net.sparrow.dto.web.CityDTO;
 import com.net.sparrow.entity.ResponsePageEntity;
 import com.net.sparrow.entity.auth.AuthUserEntity;
 import com.net.sparrow.entity.auth.CaptchaEntity;
 import com.net.sparrow.entity.auth.JwtUserEntity;
 import com.net.sparrow.entity.auth.TokenEntity;
+import com.net.sparrow.entity.common.CommonTaskEntity;
+import com.net.sparrow.entity.email.RemoteLoginEmailEntity;
 import com.net.sparrow.entity.sys.UserConditionEntity;
 import com.net.sparrow.entity.sys.UserEntity;
 import com.net.sparrow.entity.sys.UserRoleEntity;
+import com.net.sparrow.enums.EmailTypeEnum;
+import com.net.sparrow.enums.TaskStatusEnum;
+import com.net.sparrow.enums.TaskTypeEnum;
 import com.net.sparrow.exception.BusinessException;
+import com.net.sparrow.helper.GeoIpHelper;
 import com.net.sparrow.helper.TokenHelper;
 import com.net.sparrow.mapper.BaseMapper;
+import com.net.sparrow.mapper.common.CommonTaskMapper;
 import com.net.sparrow.mapper.sys.UserMapper;
 import com.net.sparrow.mapper.sys.UserRoleMapper;
 import com.net.sparrow.util.AssertUtil;
+import com.net.sparrow.util.DateFormatUtil;
 import com.net.sparrow.util.FillUserUtil;
+import com.net.sparrow.util.IpUtil;
 import com.net.sparrow.util.PasswordUtil;
 import com.net.sparrow.util.RedisUtil;
 import com.net.sparrow.util.TokenUtil;
@@ -33,10 +46,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -73,8 +91,12 @@ public class UserService extends com.net.sparrow.service.BaseService<UserEntity,
 	private AuthenticationManagerBuilder authenticationManagerBuilder;
 
 	@Autowired
-	private PasswordUtil passwordUtil;
+	private GeoIpHelper geoIpHelper;
 
+	@Autowired
+	private PasswordUtil passwordUtil;
+	@Autowired
+	private CommonTaskMapper commonTaskMapper;
 	@Autowired
 	private UserDetailsService userDetailsService;
 
@@ -93,9 +115,23 @@ public class UserService extends com.net.sparrow.service.BaseService<UserEntity,
 			// getAuthorities: 获取用户权限，一般情况下获取到的是用户的角色信息。
 			//getCredentials: 获取证明用户认证的信息，通常情况下获取到的是密码等信息。
 			JwtUserEntity jwtUserEntity = (JwtUserEntity) (authentication.getPrincipal());
+			UserEntity userEntity = userMapper.findByUserName(jwtUserEntity.getUsername());
+			AssertUtil.notNull(userEntity, "该用户不存在");
+			//获取当前用户的IP
+			HttpServletRequest httpServletRequest = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
+					.getRequest();
+			String ip = IpUtil.getIpAddr(httpServletRequest);
+			CityDTO cityDTO = geoIpHelper.getCity(ip);
+			if(Objects.nonNull(cityDTO)) {
+				String city = cityDTO.getCity();
+				validateRemoteLogin(userEntity, city);
+				userEntity.setLastLoginCity(city);
+			}
 			String token = tokenHelper.generateToken(jwtUserEntity);
 			redisUtil.del(getCaptchaKey(authUserEntity.getUuid()));
 			List<String> roles = jwtUserEntity.getAuthorities().stream().map(SimpleGrantedAuthority::getAuthority).collect(Collectors.toList());
+			//更新用户的最后登录城市
+			updateLastLoginCity(userEntity);
 			return new TokenEntity(authUserEntity.getUsername(), token, roles);
 		} catch (Exception e) {
 			log.info("登录失败：", e);
@@ -103,6 +139,13 @@ public class UserService extends com.net.sparrow.service.BaseService<UserEntity,
 		}
 
 	}
+
+	private void updateLastLoginCity(UserEntity userEntity) {
+		FillUserUtil.fillUpdateUserInfo(userEntity);
+		userEntity.setLastLoginTime(new Date());
+		userMapper.update(userEntity);
+	}
+
 
 	public void logout(HttpServletRequest request) {
 		String token = TokenUtil.getTokenForAuthorization(request);
@@ -175,6 +218,42 @@ public class UserService extends com.net.sparrow.service.BaseService<UserEntity,
 		return Collections.emptyList();
 	}
 
+	private void validateRemoteLogin(UserEntity userEntity, String nowCity) {
+		if (!StringUtils.hasLength(userEntity.getLastLoginCity())) {
+			return;
+		}
+
+		Date lastLoginTime = userEntity.getLastLoginTime();
+		if (Objects.nonNull(lastLoginTime)) {
+			long betweenHours = DateUtil.between(new Date(), lastLoginTime, DateUnit.HOUR);
+			if (betweenHours > remoteLoginDiffHour) {
+				return;
+			}
+		}
+
+		//记录异地登录请求
+		recordRemoteLoginData(userEntity, nowCity);
+
+		//用户修改密码时可以将lastLoginCity清空
+		AssertUtil.isTrue(userEntity.getLastLoginCity().equals(nowCity), "您的账号处于异地登录，为了安全考虑，请修改密码之后重新登录");
+	}
+
+	private void recordRemoteLoginData(UserEntity userEntity, String nowCity) {
+		HttpServletRequest httpServletRequest = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+		RemoteLoginEmailEntity remoteLoginEmailEntity = new RemoteLoginEmailEntity();
+		remoteLoginEmailEntity.setUsername(userEntity.getUserName());
+		remoteLoginEmailEntity.setNickName(userEntity.getNickName());
+		remoteLoginEmailEntity.setIp(IpUtil.getIpAddr(httpServletRequest));
+		remoteLoginEmailEntity.setDevice(httpServletRequest.getHeader("user-agent"));
+		remoteLoginEmailEntity.setCityName(nowCity);
+		remoteLoginEmailEntity.setEmail(userEntity.getEmail());
+		remoteLoginEmailEntity.setLoginTime(DateFormatUtil.parseToString(userEntity.getUpdateTime()));
+
+		CommonTaskEntity commonTaskEntity = createCommonTaskEntity();
+		commonTaskEntity.setRequestParam(JSONUtil.toJsonStr(remoteLoginEmailEntity));
+		commonTaskMapper.insert(commonTaskEntity);
+	}
+
 	/**
 	 * 修改用户
 	 *
@@ -184,6 +263,18 @@ public class UserService extends com.net.sparrow.service.BaseService<UserEntity,
 	public int update(UserEntity userEntity) {
 		return userMapper.update(userEntity);
 	}
+
+	private CommonTaskEntity createCommonTaskEntity() {
+		CommonTaskEntity commonTaskEntity = new CommonTaskEntity();
+		commonTaskEntity.setName("发送异地登录邮件");
+		commonTaskEntity.setStatus(TaskStatusEnum.WAITING.getValue());
+		commonTaskEntity.setFailureCount(0);
+		commonTaskEntity.setType(TaskTypeEnum.SEND_EMAIL.getValue());
+		commonTaskEntity.setBizType(EmailTypeEnum.REMOTE_LOGIN.getValue());
+		FillUserUtil.fillCreateUserInfo(commonTaskEntity);
+		return commonTaskEntity;
+	}
+
 
 	/**
 	 * 批量删除用户对象

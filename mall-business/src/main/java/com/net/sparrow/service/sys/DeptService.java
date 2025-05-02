@@ -1,7 +1,7 @@
 package com.net.sparrow.service.sys;
 
 import cn.hutool.core.util.BooleanUtil;
-import com.net.sparrow.dto.DeptTreeDTO;
+import com.net.sparrow.dto.sys.DeptTreeDTO;
 import com.net.sparrow.entity.ResponsePageEntity;
 import com.net.sparrow.entity.sys.DeptConditionEntity;
 import com.net.sparrow.entity.sys.DeptEntity;
