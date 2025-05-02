@@ -6,6 +6,8 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -77,5 +79,51 @@ public class RedisUtil {
         } catch (Exception e) {
             log.error("Redis删除数据失败：", e);
         }
+    }
+
+    /**
+     * 批量保存hash结构数据
+     *
+     * @param key key
+     * @param map map
+     * @return 是否成功
+     */
+    public boolean putHashMap(String key, Map<Object, Object> map) {
+        try {
+            stringRedisTemplate.opsForHash().putAll(key, map);
+            return true;
+        } catch (Exception e) {
+            log.error("Redis保存数据失败：", e);
+            return false;
+        }
+    }
+
+    /**
+     * 保存hash结构数据
+     *
+     * @param key     key
+     * @param hashKey hashKey
+     * @param value   值
+     * @return 是否成功
+     */
+    public boolean putHashValue(String key, Object hashKey, Object value) {
+        try {
+            stringRedisTemplate.opsForHash().put(key, hashKey, value);
+            return true;
+        } catch (Exception e) {
+            log.error("Redis保存数据失败：", e);
+            return false;
+        }
+    }
+
+    /**
+     * 获取hash结构数据
+     *
+     * @param key key
+     * @param key hashKey
+     * @return 值
+     */
+    public Object getHashValue(String key, Object hashKey) {
+        return key == null || hashKey == null ? null : stringRedisTemplate.opsForHash().get(key, hashKey);
     }
 }
