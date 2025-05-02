@@ -6,6 +6,8 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Redis工具类
  */
@@ -25,7 +27,7 @@ public class RedisUtil {
      */
     public boolean set(String key, String value, long expireTime) {
         try {
-            stringRedisTemplate.opsForValue().set(key, value, expireTime);
+            stringRedisTemplate.opsForValue().set(key, value, expireTime, TimeUnit.SECONDS);
             return true;
         } catch (Exception e) {
             log.error("Redis保存数据失败：", e);

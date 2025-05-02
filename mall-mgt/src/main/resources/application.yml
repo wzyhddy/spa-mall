@@ -15,6 +15,13 @@ spring:
     username: root
     password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
+  mail:
+    protocol: smtp
+    host: smtp.163.com
+    port: 25
+    username: wzyhddy@163.com
+    password: XUbFj6whdUDPj3gc
+    default-encoding: UTF-8
 
 server:
   port: 8011
@@ -25,3 +32,8 @@ logging:
       net:
         sparrow:
           mapper: debug
+
+mall:
+  mgt:
+    geoIpFilePath: D:/IdeaProjects/spa-mall/tmp/geoip2
+    taobaoIpUrl: https://ip.taobao.com/outGetIpInfo?ip=%s&accessKey=alibaba-inc
