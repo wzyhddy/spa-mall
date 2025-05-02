@@ -20,10 +20,11 @@ import java.util.List;
  * @DateTime: 2025/5/2 09:38
  **/
 @Slf4j
-@Component
+@Deprecated
+//@Component
 public class CommonNotifyJob {
 
-	@Autowired
+//	@Autowired
 	private CommonNotifyMapper commonNotifyMapper;
 
 	@Scheduled(fixedRate = 1000)

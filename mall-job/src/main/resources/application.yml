@@ -12,13 +12,22 @@ spring:
     username: wzyhddy@163.com
     password: XUbFj6whdUDPj3gc
     default-encoding: UTF-8
-  freemarker:
-    cache: false
-    settings:
-      classic_compatible: true
-    suffix: .html
-    charset: UTF-8
-    template-loader-path: classpath:/templates/
+  rabbitmq:
+    host: 124.221.142.75
+    port: 5672
+    username: rabbitmq
+    password: rabbitmq
+  redis:
+    database: 5
+    host: 124.221.142.75
+    port: 6379
+    password: cool
+    timeout: 5000
+  elasticsearch:
+    host: 124.221.142.75
+    port: 9200
+    username: elastic
+    password: Elastic_STtwmz
 server:
   port: 8012
 
@@ -28,3 +37,11 @@ logging:
       net:
         sparrow:
           mapper: debug
+oss:
+  qiniu:
+    accessKey: V-Tz0xdLnWFHbHM9mmd78exWVcqAWQeoxrzwSH8i
+    secretKey: YR39wsPfMxOTedNizE8xcJj6J4rzSphPHzQhXs2i
+    bucketPictureName: spa-mall
+    domainPicture: http://ss2t6snkb.hd-bkt.clouddn.com/
+    bucketFileName: spa-mall
+    domainFile: http://ss2t6snkb.hd-bkt.clouddn.com/
