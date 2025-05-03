@@ -1,24 +1,20 @@
-package com.net.sparrow.entity.mall;
+package com.net.sparrow.entity.order;
 
 import com.net.sparrow.entity.RequestPageEntity;
-import lombok.Data;
-import java.util.Date;
-import java.math.BigDecimal;
-import java.util.List;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+
+import java.math.BigDecimal;
+import java.util.Date;
 
 /**
- * 商品查询条件实体
- * 
- * @author sparrow
- * @date 2025-02-22 20:55:27
+ * 订单明细查询条件实体
  */
-@ApiModel("商品查询条件实体")
+@ApiModel("订单明细查询条件实体")
 @Data
-public class ProductConditionEntity extends RequestPageEntity {
-	
+public class TradeItemConditionEntity extends RequestPageEntity {
+
 
 	/**
 	 *  ID
@@ -27,46 +23,34 @@ public class ProductConditionEntity extends RequestPageEntity {
 	private Long id;
 
 	/**
-	 * ID集合
-	 */
-	@ApiModelProperty("ID集合")
-	private List<Long> idList;
+	 *  订单ID
+     */
+	@ApiModelProperty("订单ID")
+	private Long tradeId;
 
 	/**
-	 *  分类ID
+	 *  商品ID
      */
-	@ApiModelProperty("分类ID")
-	private Long categoryId;
-
-	/**
-	 *  品牌ID
-     */
-	@ApiModelProperty("品牌ID")
-	private Long brandId;
-
-	/**
-	 *  单位ID
-     */
-	@ApiModelProperty("单位ID")
-	private Long unitId;
+	@ApiModelProperty("商品ID")
+	private Long productId;
 
 	/**
 	 *  商品名称
      */
 	@ApiModelProperty("商品名称")
-	private String name;
+	private String productName;
 
 	/**
-	 *  规格
+	 *  商品规格
      */
-	@ApiModelProperty("规格")
+	@ApiModelProperty("商品规格")
 	private String model;
 
 	/**
-	 *  hash值
+	 *  单价
      */
-	@ApiModelProperty("hash值")
-	private String hash;
+	@ApiModelProperty("单价")
+	private BigDecimal price;
 
 	/**
 	 *  数量
@@ -75,10 +59,10 @@ public class ProductConditionEntity extends RequestPageEntity {
 	private Integer quantity;
 
 	/**
-	 *  价格
+	 *  金额
      */
-	@ApiModelProperty("价格")
-	private BigDecimal price;
+	@ApiModelProperty("金额")
+	private BigDecimal amount;
 
 	/**
 	 *  创建人ID
@@ -121,10 +105,4 @@ public class ProductConditionEntity extends RequestPageEntity {
      */
 	@ApiModelProperty("是否删除 1：已删除 0：未删除")
 	private Integer isDel;
-
-	/**
-	 * 商品查询条件
-	 */
-	@ApiModelProperty("商品查询条件")
-	private List<ProductEntity> productEntities;
 }

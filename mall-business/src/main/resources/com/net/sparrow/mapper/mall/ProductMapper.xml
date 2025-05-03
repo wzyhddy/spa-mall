@@ -55,7 +55,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="id != null ">
                 AND id = #{id}
             </if>
-            
+
+            <if test="idList != null and idList.size()>0">
+                AND id IN
+                <foreach collection="idList" item="id" open="(" close=")" separator=",">
+                    #{id}
+                </foreach>
+            </if>
+
+
             <if test="categoryId != null ">
                 AND category_id = #{categoryId}
             </if>
