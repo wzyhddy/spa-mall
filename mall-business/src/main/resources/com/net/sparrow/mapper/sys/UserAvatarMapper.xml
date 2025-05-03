@@ -189,7 +189,7 @@
     <insert id="insert" parameterType="com.net.sparrow.entity.sys.UserAvatarEntity">
         INSERT INTO sys_user_avatar
         <trim prefix="(" suffix=")" suffixOverrides=",">
-
+            id,
             <if test="fileName != null  and fileName != ''">
                 file_name,
             </if>
@@ -241,6 +241,7 @@
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{GENERATE_ID},
             <if test="fileName != null  and fileName != ''">
                 #{fileName},
             </if>

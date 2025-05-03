@@ -189,7 +189,7 @@
     <insert id="insert" parameterType="com.net.sparrow.entity.mall.AttributeValueEntity">
         INSERT INTO mall_attribute_value
         <trim prefix="(" suffix=")" suffixOverrides=",">
-
+            id,
             <if test="attributeId != null ">
                 attribute_id,
             </if>
@@ -241,6 +241,7 @@
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{GENERATE_ID},
             <if test="attributeId != null ">
                 #{attributeId},
             </if>

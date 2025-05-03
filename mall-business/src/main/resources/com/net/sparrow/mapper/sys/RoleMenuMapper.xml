@@ -99,7 +99,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="insert" parameterType="com.net.sparrow.entity.sys.RoleMenuEntity">
         INSERT INTO sys_role_menu
         <trim prefix="(" suffix=")" suffixOverrides=",">
-
+            id,
             <if test="roleId != null ">
                 role_id,
             </if>
@@ -111,6 +111,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{GENERATE_ID},
             <if test="roleId != null ">
                 #{roleId},
             </if>
@@ -144,12 +145,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="batchInsert" parameterType="com.net.sparrow.entity.sys.RoleMenuEntity">
         INSERT INTO sys_role_menu
         (
+        id,
         role_id,
         menu_id
         )
         VALUES
         <foreach collection="list" item="item" separator=",">
             (
+            #{item.id},
             #{item.roleId},
             #{item.menuId}
             )

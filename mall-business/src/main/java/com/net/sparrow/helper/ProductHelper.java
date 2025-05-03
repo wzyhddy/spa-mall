@@ -21,6 +21,9 @@ public class ProductHelper {
     @Autowired
     private ProductMapper productMapper;
 
+    @Autowired
+    private IdGenerateHelper idGenerateHelper;
+
     /**
      * 批量insert商品
      *
@@ -42,6 +45,7 @@ public class ProductHelper {
         }
 
         try {
+            productEntity.setId(idGenerateHelper.nextId());
             productMapper.batchInsert(Lists.newArrayList(productEntity));
             productEntity.setIsNew(true);
             //如果抛了DuplicateKeyException异常，说明此时有另外的请求并发insert商品数据成功了

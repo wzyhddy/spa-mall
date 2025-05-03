@@ -28,6 +28,13 @@ spring:
     port: 9200
     username: elastic
     password: Elastic_STtwmz
+  freemarker:
+    cache: false
+    settings:
+      classic_compatible: true
+    suffix: .html
+    charset: UTF-8
+    template-loader-path: classpath:/templates/
 server:
   port: 8012
 
@@ -45,3 +52,8 @@ oss:
     domainPicture: http://ss2t6snkb.hd-bkt.clouddn.com/
     bucketFileName: spa-mall
     domainFile: http://ss2t6snkb.hd-bkt.clouddn.com/
+mall:
+  mgt:
+    id:
+      generate:
+        workerId: 2
