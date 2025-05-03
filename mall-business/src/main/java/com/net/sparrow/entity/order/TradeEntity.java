@@ -1,5 +1,7 @@
 package com.net.sparrow.entity.order;
 
+import com.net.sparrow.annotation.MaxMoney;
+import com.net.sparrow.annotation.MinMoney;
 import com.net.sparrow.entity.BaseEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -64,6 +66,8 @@ public class TradeEntity extends BaseEntity {
      */
     @NotNull(message = "总金额不能为空")
     @ApiModelProperty("总金额")
+    @MinMoney(value = 0, message = "总金额不能小于0")
+    @MaxMoney(value = 100000, message = "总金额必须小于100000")
     private BigDecimal totalAmount;
 
     /**
@@ -71,6 +75,8 @@ public class TradeEntity extends BaseEntity {
      */
     @NotNull(message = "付款金额不能为空")
     @ApiModelProperty("付款金额")
+    @MinMoney(value = 0, message = "付款金额不能小于0")
+    @MaxMoney(value = 100000, message = "付款金额必须小于100000")
     private BigDecimal paymentAmount;
 
     /**
