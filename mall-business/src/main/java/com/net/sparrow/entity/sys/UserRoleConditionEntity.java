@@ -5,6 +5,8 @@ import lombok.Data;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+import java.util.List;
+
 /**
  * 用户角色关联查询条件实体
  * 
@@ -33,4 +35,11 @@ public class UserRoleConditionEntity extends RequestPageEntity {
      */
 	@ApiModelProperty("角色ID")
 	private Long roleId;
+
+	/**
+	 * 用户ID集合
+	 */
+	@ApiModelProperty("用户ID集合")
+	private List<Long> userIdList;
+
 }

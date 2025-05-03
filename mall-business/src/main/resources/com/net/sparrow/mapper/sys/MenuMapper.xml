@@ -126,7 +126,12 @@
             <if test="updateTime != null ">
                 AND update_time = #{updateTime}
             </if>
-
+            <if test="pidList != null and pidList.size()>0">
+                AND pid IN
+                <foreach collection="pidList" item="pid" open="(" close=")" separator=",">
+                    #{pid}
+                </foreach>
+            </if>
             <if test="isDel != null ">
                 AND is_del = #{isDel}
             </if>
@@ -427,7 +432,7 @@
             </if>
 
             <if test="component != null ">
-                component,
+                #{component},
             </if>
         </trim>
     </insert>

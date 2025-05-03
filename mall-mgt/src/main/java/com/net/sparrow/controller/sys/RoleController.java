@@ -1,5 +1,8 @@
 package com.net.sparrow.controller.sys;
 
+import com.net.sparrow.annotation.ExcelExport;
+import com.net.sparrow.annotation.NoLogin;
+import com.net.sparrow.enums.ExcelBizTypeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -53,6 +56,11 @@ public class RoleController {
 		return roleService.searchByPage(roleConditionEntity);
 	}
 
+	@ApiOperation(notes = "查询所有角色", value = "查询所有角色")
+	@GetMapping("/all")
+	public List<RoleEntity> all() {
+		return roleService.all();
+	}
 
 	/**
      * 添加角色
@@ -88,5 +96,12 @@ public class RoleController {
 	@PostMapping("/deleteByIds")
 	public int deleteByIds(@RequestBody @NotNull List<Long> ids) {
 		return roleService.deleteByIds(ids);
+	}
+
+	@ExcelExport(ExcelBizTypeEnum.ROLE)
+	@NoLogin
+	@ApiOperation(notes = "导出角色数据", value = "导出角色数据")
+	@PostMapping("/export")
+	public void export(@RequestBody RoleConditionEntity roleConditionEntity) {
 	}
 }

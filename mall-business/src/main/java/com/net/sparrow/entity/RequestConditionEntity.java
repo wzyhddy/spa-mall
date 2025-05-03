@@ -37,4 +37,9 @@ public class RequestConditionEntity extends RequestPageEntity {
      * 排序字段
      */
     private List<String> sortField;
+
+    /**
+     * 查询条件
+     */
+    private String blurry;
 }
