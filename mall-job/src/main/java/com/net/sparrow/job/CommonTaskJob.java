@@ -2,12 +2,12 @@ package com.net.sparrow.job;
 
 import com.net.sparrow.entity.common.CommonTaskConditionEntity;
 import com.net.sparrow.entity.common.CommonTaskEntity;
+import com.net.sparrow.enums.JobResult;
 import com.net.sparrow.enums.TaskStatusEnum;
 import com.net.sparrow.factory.AsyncTaskStrategyContextFactory;
 import com.net.sparrow.mapper.common.CommonTaskMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -21,7 +21,7 @@ import java.util.List;
  **/
 @Slf4j
 @Component
-public class CommonTaskJob {
+public class CommonTaskJob extends BaseJob {
 
 	private static final List<Integer> QUERY_VALID_STATUS_LIST = new ArrayList<>();
 
@@ -33,8 +33,8 @@ public class CommonTaskJob {
 	@Autowired
 	private CommonTaskMapper commonTaskMapper;
 
-	@Scheduled(fixedRate = 10000)
-	public void run() {
+//	@Scheduled(fixedRate = 10000)
+	public void doRun() {
 		CommonTaskConditionEntity conditionEntity = new CommonTaskConditionEntity();
 		conditionEntity.setStatusList(QUERY_VALID_STATUS_LIST);
 		List<CommonTaskEntity> commonTaskEntities = commonTaskMapper.searchByCondition(conditionEntity);
@@ -45,5 +45,11 @@ public class CommonTaskJob {
 		for (CommonTaskEntity commonTaskEntity : commonTaskEntities) {
 			AsyncTaskStrategyContextFactory.getInstance().getStrategy(commonTaskEntity.getType()).doTask(commonTaskEntity);
 		}
+	}
+
+	@Override
+	public JobResult doRun(String params) {
+		doRun();
+		return JobResult.SUCCESS;
 	}
 }
