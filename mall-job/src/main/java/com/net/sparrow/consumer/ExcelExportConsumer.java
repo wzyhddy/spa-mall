@@ -39,11 +39,13 @@ public class ExcelExportConsumer {
 		try {
 			WebSocketServer.sendMessage(commonNotifyEntity);
 			commonNotifyEntity.setIsPush(1);
-			FillUserUtil.fillUpdateUserInfoFromCreate(commonNotifyEntity);
+			FillUserUtil.mockCurrentUser();
 			commonNotifyMapper.update(commonNotifyEntity);
 		} catch (IOException e) {
 			log.error("WebSocket通知推送失败，原因：", e);
+		} finally {
+			FillUserUtil.clearCurrentUser();
 		}
-
 	}
+
 }
