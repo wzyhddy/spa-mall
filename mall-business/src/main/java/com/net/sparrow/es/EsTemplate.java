@@ -2,6 +2,7 @@ package com.net.sparrow.es;
 
 import com.alibaba.fastjson.JSON;
 import com.net.sparrow.entity.EsBaseEntity;
+import com.net.sparrow.entity.ResponsePageEntity;
 import com.net.sparrow.exception.BusinessException;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -81,11 +82,13 @@ public class EsTemplate {
 	 * @param aClass  结果类对象
 	 * @return java.util.List<T>
 	 */
-	public <T> List<T> search(String idxName, SearchSourceBuilder builder, Class<T> aClass) throws IOException {
+	public <T> List<T> search(String idxName, SearchSourceBuilder builder, Class<T> aClass, ResponsePageEntity responsePageEntity) throws IOException {
 		SearchRequest request = new SearchRequest(idxName);
 		request.source(builder);
 		SearchResponse response = restHighLevelClient.search(request, RequestOptions.DEFAULT);
 		SearchHit[] hits = response.getHits().getHits();
+		int total = (int) response.getHits().getTotalHits().value;
+		responsePageEntity.setTotalCount(total);
 		return Arrays.stream(hits).map(hit -> JSON.parseObject(hit.getSourceAsString(), aClass)).collect(Collectors.toList());
 	}
 }
