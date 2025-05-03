@@ -55,4 +55,6 @@ public interface UserMapper extends BaseMapper<UserEntity, UserConditionEntity> 
 	List<UserEntity> findByIds(List<Long> ids);
 
 	UserEntity findByUserName(String username);
+
+	int updateForBatch(List<UserEntity> list);
 }

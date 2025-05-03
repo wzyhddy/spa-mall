@@ -4,6 +4,8 @@ import com.net.sparrow.entity.RequestConditionEntity;
 import com.net.sparrow.entity.RequestPageEntity;
 import lombok.Data;
 import java.util.Date;
+import java.util.List;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -125,4 +127,10 @@ public class MenuConditionEntity extends RequestConditionEntity {
      */
 	@ApiModelProperty("是否删除 1：已删除 0：未删除")
 	private Integer isDel;
+
+	/**
+	 * 上级菜单ID集合
+	 */
+	@ApiModelProperty("上级菜单ID集合")
+	private List<Long> pidList;
 }

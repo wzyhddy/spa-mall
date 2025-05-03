@@ -58,6 +58,10 @@
 
     <sql id="queryWhere">
         <where>
+            <if test="blurry !=null and blurry !=''">
+                AND (user_name LIKE CONCAT ('%', #{blurry},'%') OR nick_name LIKE CONCAT ('%', #{blurry},'%') OR email
+                LIKE CONCAT ('%', #{blurry},'%'))
+            </if>
 
             <if test="id != null ">
                 AND id = #{id}
@@ -131,12 +135,30 @@
                 AND update_time = #{updateTime}
             </if>
 
+            <if test="createBeginTime != null and createBeginTime !=''">
+                AND create_time >= #{createBeginTime}
+            </if>
+
+            <if test="createEndTime != null and createEndTime !=''">
+                AND create_time <![CDATA[<]]> #{createEndTime}
+            </if>
+
             <if test="isDel != null ">
                 AND is_del = #{isDel}
             </if>
             AND is_del = 0
         </where>
     </sql>
+
+    <update id="updateForBatch" parameterType="com.net.sparrow.entity.sys.UserEntity">
+        <foreach collection="list" item="entity" separator=";">
+            UPDATE sys_user
+            SET password = #{entity.password},update_user_id=#{entity.updateUserId},update_user_name=#{entity.updateUserName}
+            <where>
+                id = #{entity.id}
+            </where>
+        </foreach>
+    </update>
 
     <select id="findById" parameterType="Long"
             resultMap="UserResult">
@@ -239,27 +261,20 @@
                 create_time = #{createTime},
             </if>
 
-
-            <if test="updateUserId != null ">
-                update_user_id = #{updateUserId},
-            </if>
-
-
-            <if test="updateUserName != null  and updateUserName != ''">
-                update_user_name = #{updateUserName},
-            </if>
-
-
-            <if test="updateTime != null ">
-                update_time = #{updateTime},
-            </if>
-
-
             <if test="isDel != null ">
                 is_del = #{isDel},
             </if>
 
-            update_time=now(3)
+            <if test="lastLoginCity != null and lastLoginCity !=''">
+                last_login_city = #{lastLoginCity},
+            </if>
+
+            <if test="lastLoginTime != null">
+                last_login_time = #{lastLoginTime},
+            </if>
+            update_user_id = #{CURRENT_USER_ID},
+            update_user_name = #{CURRENT_USER_NAME},
+            update_time = now(3),
         </trim>
         WHERE id = #{id}
     </update>
@@ -273,8 +288,7 @@
             #{id}
         </foreach>
     </delete>
-
-    <insert id="insert" parameterType="com.net.sparrow.entity.sys.UserEntity">
+    <insert id="insert" parameterType="com.net.sparrow.entity.sys.UserEntity" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO sys_user
         <trim prefix="(" suffix=")" suffixOverrides=",">
 
@@ -333,20 +347,9 @@
             </if>
 
 
-            <if test="createUserId != null ">
-                create_user_id,
-            </if>
-
-
-            <if test="createUserName != null  and createUserName != ''">
-                create_user_name,
-            </if>
-
-
-            <if test="createTime != null ">
-                create_time,
-            </if>
-
+            create_user_id,
+            create_user_name,
+            create_time,
 
             <if test="updateUserId != null ">
                 update_user_id,
@@ -413,17 +416,9 @@
                 #{validStatus},
             </if>
 
-            <if test="createUserId != null ">
-                #{createUserId},
-            </if>
-
-            <if test="createUserName != null  and createUserName != ''">
-                #{createUserName},
-            </if>
-
-            <if test="createTime != null ">
-                #{createTime},
-            </if>
+            #{CURRENT_USER_ID},
+            #{CURRENT_USER_NAME},
+            now(3),
 
             <if test="updateUserId != null ">
                 #{updateUserId},
@@ -443,7 +438,6 @@
 
         </trim>
     </insert>
-
     <select id="findByIds" parameterType="Long"
             resultMap="UserResult">
         SELECT

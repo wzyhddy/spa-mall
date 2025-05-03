@@ -1,6 +1,8 @@
 package com.net.sparrow.controller.sys;
 
+import com.net.sparrow.annotation.ExcelExport;
 import com.net.sparrow.annotation.NoLogin;
+import com.net.sparrow.enums.ExcelBizTypeEnum;
 import com.net.sparrow.util.ApiResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,9 +15,13 @@ import com.net.sparrow.entity.ResponsePageEntity;
 import com.net.sparrow.entity.sys.UserConditionEntity;
 import com.net.sparrow.entity.sys.UserEntity;
 import com.net.sparrow.service.sys.UserService;
+
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -93,5 +99,23 @@ public class UserController {
 	@PostMapping("/deleteByIds")
 	public int deleteByIds(@RequestBody @NotNull List<Long> ids) {
 		return userService.deleteByIds(ids);
+	}
+
+	@ApiOperation(notes = "重置密码", value = "重置密码")
+	@PostMapping("/resetPwd")
+	public int resetPwd(@RequestBody@NotNull List<Long> ids) {
+		return userService.resetPwd(ids);
+	}
+
+	/**
+	 * 导出用户数据
+	 *
+	 * @return 影响行数
+	 */
+	@ExcelExport(ExcelBizTypeEnum.USER)
+	@NoLogin
+	@ApiOperation(notes = "导出用户数据", value = "导出用户数据")
+	@PostMapping("/export")
+	public void export(HttpServletResponse response, UserConditionEntity userConditionEntity) throws IOException {
 	}
 }

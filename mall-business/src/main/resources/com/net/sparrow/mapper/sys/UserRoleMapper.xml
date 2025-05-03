@@ -38,7 +38,13 @@
             <if test="roleId != null ">
                 AND role_id = #{roleId}
             </if>
-            AND is_del = 0
+
+            <if test="userIdList != null and userIdList.size()>0">
+                AND user_id IN
+                <foreach collection="userIdList" item="userId" open="(" close=")" separator=",">
+                    #{userId}
+                </foreach>
+            </if>
         </where>
     </sql>
 
@@ -96,6 +102,11 @@
         <foreach collection="ids" item="id" open="(" close=")" separator=",">
             #{id}
         </foreach>
+    </delete>
+
+    <delete id="deleteByUserId">
+        DELETE FROM sys_user_role
+        WHERE user_id = ${userId}
     </delete>
 
     <insert id="insert" parameterType="com.net.sparrow.entity.sys.UserRoleEntity">

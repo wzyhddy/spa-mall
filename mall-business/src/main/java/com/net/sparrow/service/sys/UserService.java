@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.json.JSONUtil;
+import com.google.common.collect.Lists;
 import com.net.sparrow.dto.web.CityDTO;
 import com.net.sparrow.entity.ResponsePageEntity;
 import com.net.sparrow.entity.auth.AuthUserEntity;
@@ -14,8 +15,11 @@ import com.net.sparrow.entity.common.CommonTaskEntity;
 import com.net.sparrow.entity.email.RemoteLoginEmailEntity;
 import com.net.sparrow.entity.sys.DeptConditionEntity;
 import com.net.sparrow.entity.sys.DeptEntity;
+import com.net.sparrow.entity.sys.JobEntity;
+import com.net.sparrow.entity.sys.RoleEntity;
 import com.net.sparrow.entity.sys.UserConditionEntity;
 import com.net.sparrow.entity.sys.UserEntity;
+import com.net.sparrow.entity.sys.UserRoleConditionEntity;
 import com.net.sparrow.entity.sys.UserRoleEntity;
 import com.net.sparrow.enums.EmailTypeEnum;
 import com.net.sparrow.enums.TaskStatusEnum;
@@ -26,9 +30,12 @@ import com.net.sparrow.helper.TokenHelper;
 import com.net.sparrow.mapper.BaseMapper;
 import com.net.sparrow.mapper.common.CommonTaskMapper;
 import com.net.sparrow.mapper.sys.DeptMapper;
+import com.net.sparrow.mapper.sys.JobMapper;
+import com.net.sparrow.mapper.sys.RoleMapper;
 import com.net.sparrow.mapper.sys.UserMapper;
 import com.net.sparrow.mapper.sys.UserRoleMapper;
 import com.net.sparrow.util.AssertUtil;
+import com.net.sparrow.util.BetweenTimeUtil;
 import com.net.sparrow.util.DateFormatUtil;
 import com.net.sparrow.util.FillUserUtil;
 import com.net.sparrow.util.IpUtil;
@@ -59,6 +66,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -73,6 +81,7 @@ public class UserService extends com.net.sparrow.service.BaseService<UserEntity,
 
 	private static final String CAPTCHA_PREFIX = "captcha:";
 
+	private static final String DEFAULT_PASSWORD = "123456";
 	@Autowired
 	private UserMapper userMapper;
 
@@ -102,6 +111,10 @@ public class UserService extends com.net.sparrow.service.BaseService<UserEntity,
 	private PasswordUtil passwordUtil;
 	@Autowired
 	private CommonTaskMapper commonTaskMapper;
+	@Autowired
+	private JobMapper jobMapper;
+	@Autowired
+	private RoleMapper roleMapper;
 	@Autowired
 	private UserDetailsService userDetailsService;
 
@@ -180,6 +193,7 @@ public class UserService extends com.net.sparrow.service.BaseService<UserEntity,
 	 * @return 用户集合
 	 */
 	public ResponsePageEntity<UserEntity> searchByPage(UserConditionEntity userConditionEntity) {
+		BetweenTimeUtil.parseTime(userConditionEntity);
 		int count = userMapper.searchCount(userConditionEntity);
 		if (count == 0) {
 			return ResponsePageEntity.buildEmpty(userConditionEntity);
@@ -187,6 +201,16 @@ public class UserService extends com.net.sparrow.service.BaseService<UserEntity,
 		List<UserEntity> dataList = userMapper.searchByCondition(userConditionEntity);
 		fillData(dataList);
 		return ResponsePageEntity.build(userConditionEntity, count, dataList);
+	}
+
+	private void fillData(UserEntity userEntity) {
+		if (Objects.nonNull(userEntity.getDept())) {
+			userEntity.setDeptId(userEntity.getDept().getId());
+		}
+
+		if (CollectionUtils.isNotEmpty(userEntity.getJobs())) {
+			userEntity.setJobId(userEntity.getJobs().get(0).getId());
+		}
 	}
 
 	private void fillData(List<UserEntity> dataList) {
@@ -205,13 +229,56 @@ public class UserService extends com.net.sparrow.service.BaseService<UserEntity,
 			if (Objects.isNull(userEntity.getDeptId())) {
 				continue;
 			}
-			List<DeptEntity> entities = deptMap.get(userEntity.getDeptId());
-			if (CollectionUtils.isNotEmpty(entities)) {
-				userEntity.setDeptName(entities.get(0).getName());
+			List<DeptEntity> deptEntityList = deptMap.get(userEntity.getDeptId());
+			if (CollectionUtils.isNotEmpty(deptEntityList)) {
+				DeptEntity deptEntity = deptEntityList.get(0);
+				userEntity.setDeptName(deptEntity.getName());
+				userEntity.setDept(deptEntity);
+			}
+		}
+		fillJob(dataList);
+		fillRole(dataList);
+	}
+
+	private void fillJob(List<UserEntity> dataList) {
+		List<Long> jobIdList = dataList.stream().filter(x -> Objects.nonNull(x.getJobId())).map(UserEntity::getJobId).collect(Collectors.toList());
+		List<JobEntity> jobList = jobMapper.findByIds(jobIdList);
+		for (UserEntity userEntity : dataList) {
+			Optional<JobEntity> optional = jobList.stream().filter(x -> x.getId().equals(userEntity.getJobId())).findAny();
+			if (optional.isPresent()) {
+				userEntity.setJobs(Lists.newArrayList(optional.get()));
 			}
 		}
 	}
 
+	private void fillRole(List<UserEntity> dataList) {
+		List<Long> userIdList = dataList.stream().map(UserEntity::getId).collect(Collectors.toList());
+		UserRoleConditionEntity userRoleConditionEntity = new UserRoleConditionEntity();
+		userRoleConditionEntity.setUserIdList(userIdList);
+		userRoleConditionEntity.setPageSize(0);
+		//用户角色关联
+		List<UserRoleEntity> userRoleEntityList = userRoleMapper.searchByCondition(userRoleConditionEntity);
+		if(CollectionUtils.isEmpty(userRoleEntityList)) {
+			return;
+		}
+		List<Long> roleIdList = userRoleEntityList.stream().map(UserRoleEntity::getRoleId).distinct().collect(Collectors.toList());
+		List<RoleEntity> roleList = roleMapper.findByIds(roleIdList);
+		Map<Long, List<UserRoleEntity>> userRoleMap = userRoleEntityList.stream().collect(Collectors.groupingBy(UserRoleEntity::getUserId));
+		Map<Long, List<RoleEntity>> roleMap = roleList.stream().collect(Collectors.groupingBy(RoleEntity::getId));
+		for (UserEntity userEntity : dataList) {
+			List<UserRoleEntity> userRoleEntities = userRoleMap.get(userEntity.getId());
+			if (CollectionUtils.isNotEmpty(userRoleEntities)) {
+				List<RoleEntity> roles = Lists.newArrayList();
+				for (UserRoleEntity userRoleEntity : userRoleEntities) {
+					List<RoleEntity> matchRoleEntities = roleMap.get(userRoleEntity.getRoleId());
+					if(CollectionUtils.isNotEmpty(matchRoleEntities)) {
+						roles.add(matchRoleEntities.get(0));
+					}
+				}
+				userEntity.setRoles(roles);
+			}
+		}
+	}
 	/**
 	 * 新增用户
 	 *
@@ -226,9 +293,13 @@ public class UserService extends com.net.sparrow.service.BaseService<UserEntity,
 		userConditionEntity = new UserConditionEntity();
 		userConditionEntity.setEmail(userEntity.getEmail());
 		AssertUtil.isTrue(CollectionUtils.isEmpty(userMapper.searchByCondition(userConditionEntity)), "邮箱已存在");
+		if (!StringUtils.hasLength(userEntity.getPassword())) {
+			userEntity.setPassword(DEFAULT_PASSWORD);
+		}
 		userEntity.setPassword(passwordUtil.encode(userEntity.getPassword()));
+		fillData(userEntity);
 		userMapper.insert(userEntity);
-
+		userRoleMapper.deleteByUserId(userEntity.getId());
 		List<UserRoleEntity> userRoleEntities = buildUserRoleEntityList(userEntity);
 		if (CollectionUtils.isNotEmpty(userRoleEntities)) {
 			userRoleMapper.batchInsert(userRoleEntities);
@@ -284,12 +355,34 @@ public class UserService extends com.net.sparrow.service.BaseService<UserEntity,
 	}
 
 	/**
+	 * 批量重置用户密码
+	 * @param ids 用户ID
+	 * @return
+	 */
+	public int resetPwd(List<Long> ids) {
+		List<UserEntity> userEntities = userMapper.findByIds(ids);
+		AssertUtil.notEmpty(userEntities, "用户不存在");
+
+		for (UserEntity userEntity : userEntities) {
+			userEntity.setPassword(passwordUtil.encode(DEFAULT_PASSWORD));
+			FillUserUtil.fillUpdateUserInfo(userEntity);
+		}
+		return userMapper.updateForBatch(userEntities);
+	}
+	/**
 	 * 修改用户
 	 *
 	 * @param userEntity 用户信息
 	 * @return 结果
 	 */
+	@Transactional(rollbackFor = Throwable.class)
 	public int update(UserEntity userEntity) {
+		fillData(userEntity);
+		userRoleMapper.deleteByUserId(userEntity.getId());
+		List<UserRoleEntity> userRoleEntities = buildUserRoleEntityList(userEntity);
+		if (CollectionUtils.isNotEmpty(userRoleEntities)) {
+			userRoleMapper.batchInsert(userRoleEntities);
+		}
 		return userMapper.update(userEntity);
 	}
 

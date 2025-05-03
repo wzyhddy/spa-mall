@@ -57,7 +57,7 @@ public class JobService extends BaseService< JobEntity,  JobConditionEntity> {
      * @return 结果
      */
 	public int insert(JobEntity jobEntity) {
-		FillUserUtil.fillCreateUserInfo(jobEntity);
+//		FillUserUtil.fillCreateUserInfo(jobEntity);
 	    return jobMapper.insert(jobEntity);
 	}
 

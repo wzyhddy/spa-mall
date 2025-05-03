@@ -78,8 +78,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                 AND create_user_name = #{createUserName}
             </if>
 
-            <if test="createTime != null ">
-                AND create_time = #{createTime}
+            <if test="blurry !=null and blurry !=''">
+                AND (name LIKE CONCAT ('%',  #{blurry},'%') OR remark LIKE CONCAT ('%',  #{blurry},'%'))
+            </if>
+
+            <if test="createBeginTime != null and createBeginTime !=''">
+                AND create_time >= #{createBeginTime}
+            </if>
+
+            <if test="createEndTime != null and createEndTime !=''">
+                AND create_time <![CDATA[<]]> #{createEndTime}
             </if>
 
             <if test="updateUserId != null ">
@@ -93,6 +101,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateTime != null ">
                 AND update_time = #{updateTime}
             </if>
+
+
 
             <if test="isDel != null ">
                 AND is_del = #{isDel}
@@ -132,67 +142,53 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="update" parameterType="com.net.sparrow.entity.sys.RoleEntity">
         UPDATE sys_role
         <trim prefix="SET" suffixOverrides=",">
-                                                        
-                    <if test="name != null  and name != ''">
-                        name = #{name},
-                    </if>
 
-                                            
-                    <if test="remark != null  and remark != ''">
-                        remark = #{remark},
-                    </if>
+            <if test="name != null  and name != ''">
+                name = #{name},
+            </if>
 
-                                            
-                    <if test="dataScope != null  and dataScope != ''">
-                        data_scope = #{dataScope},
-                    </if>
 
-                                            
-                    <if test="level != null ">
-                        level = #{level},
-                    </if>
+            <if test="remark != null  and remark != ''">
+                remark = #{remark},
+            </if>
 
-                                            
-                    <if test="permission != null  and permission != ''">
-                        permission = #{permission},
-                    </if>
 
-                                            
-                    <if test="createUserId != null ">
-                        create_user_id = #{createUserId},
-                    </if>
+            <if test="dataScope != null  and dataScope != ''">
+                data_scope = #{dataScope},
+            </if>
 
-                                            
-                    <if test="createUserName != null  and createUserName != ''">
-                        create_user_name = #{createUserName},
-                    </if>
 
-                                            
-                    <if test="createTime != null ">
-                        create_time = #{createTime},
-                    </if>
+            <if test="level != null ">
+                level = #{level},
+            </if>
 
-                                            
-                    <if test="updateUserId != null ">
-                        update_user_id = #{updateUserId},
-                    </if>
 
-                                            
-                    <if test="updateUserName != null  and updateUserName != ''">
-                        update_user_name = #{updateUserName},
-                    </if>
+            <if test="permission != null  and permission != ''">
+                permission = #{permission},
+            </if>
 
-                                            
-                    <if test="updateTime != null ">
-                        update_time = #{updateTime},
-                    </if>
 
-                                            
-                    <if test="isDel != null ">
-                        is_del = #{isDel},
-                    </if>
+            <if test="createUserId != null ">
+                create_user_id = #{createUserId},
+            </if>
 
-                                        update_time=now(3)
+
+            <if test="createUserName != null  and createUserName != ''">
+                create_user_name = #{createUserName},
+            </if>
+
+
+            <if test="createTime != null ">
+                create_time = #{createTime},
+            </if>
+
+            <if test="isDel != null ">
+                is_del = #{isDel},
+            </if>
+
+            update_user_id = #{CURRENT_USER_ID},
+            update_user_name = #{CURRENT_USER_NAME},
+            update_time = now(3),
         </trim>
         WHERE id = #{id}
     </update>
@@ -233,23 +229,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="permission != null  and permission != ''">
                 permission,
             </if>
-
-
-            <if test="createUserId != null ">
-                create_user_id,
-            </if>
-
-
-            <if test="createUserName != null  and createUserName != ''">
-                create_user_name,
-            </if>
-
-
-            <if test="createTime != null ">
-                create_time,
-            </if>
-
-
+            create_user_id,
+            create_user_name,
+            create_time,
             <if test="updateUserId != null ">
                 update_user_id,
             </if>
@@ -291,17 +273,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                 #{permission},
             </if>
 
-            <if test="createUserId != null ">
-                #{createUserId},
-            </if>
+            #{CURRENT_USER_ID},
+            #{CURRENT_USER_NAME},
+            now(3),
 
-            <if test="createUserName != null  and createUserName != ''">
-                #{createUserName},
-            </if>
-
-            <if test="createTime != null ">
-                #{createTime},
-            </if>
 
             <if test="updateUserId != null ">
                 #{updateUserId},
@@ -348,5 +323,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             AND sr.is_del=0
         </where>
     </select>
+
+    <delete id="deleteByRoleIds">
+        DELETE FROM sys_role_menu
+        WHERE role_id IN
+        <foreach collection="roleIds" item="roleId" open="(" close=")" separator=",">
+            #{roleId}
+        </foreach>
+    </delete>
 
 </mapper>

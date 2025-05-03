@@ -4,9 +4,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import com.google.common.collect.Lists;
 import com.net.sparrow.dto.sys.MenuTreeDTO;
 import com.net.sparrow.dto.sys.MetaDTO;
 import com.net.sparrow.util.BetweenTimeUtil;
@@ -149,6 +153,7 @@ public class MenuService extends BaseService< MenuEntity,  MenuConditionEntity> 
 
 	private MenuTreeDTO buildMenuTreeDTO(MenuEntity menuEntity) {
 		MenuTreeDTO menuTreeDTO = BeanUtil.copyProperties(menuEntity, MenuTreeDTO.class);
+		menuTreeDTO.setLabel(menuEntity.getName());
 		menuTreeDTO.setAlwaysShow(false);
 		MetaDTO metaDTO = new MetaDTO();
 		menuTreeDTO.setMeta(metaDTO);
@@ -158,4 +163,48 @@ public class MenuService extends BaseService< MenuEntity,  MenuConditionEntity> 
 		return menuTreeDTO;
 	}
 
+	/**
+	 * 获取下级菜单
+	 * @param id
+	 * @return
+	 */
+	public List<Long> getChild(Long id) {
+		ArrayList<Long> result = Lists.newArrayList(id);
+		MenuConditionEntity menuConditionEntity = new MenuConditionEntity();
+		menuConditionEntity.setPageSize(0);
+		menuConditionEntity.setPid(id);
+		List<MenuEntity> menuEntities = menuMapper.searchByCondition(menuConditionEntity);
+		List<Long> childIds = menuEntities.stream().map(MenuEntity::getId).collect(Collectors.toList());
+		if (CollectionUtil.isNotEmpty(childIds)) {
+			result.addAll(childIds);
+		}
+		return result;
+	}
+
+	public List<MenuTreeDTO> getMenu(MenuConditionEntity menuConditionEntity) {
+		List<MenuTreeDTO> result = Lists.newArrayList();
+		if (Objects.isNull(menuConditionEntity.getPid())) {
+			menuConditionEntity.setPid(0L);
+		}
+		menuConditionEntity.setPageSize(0);
+		List<MenuEntity> menuEntities = menuMapper.searchByCondition(menuConditionEntity);
+		List<Long> pidList = menuEntities.stream().map(MenuEntity::getId).collect(Collectors.toList());
+		MenuConditionEntity childrenMenuConditionEntity = new MenuConditionEntity();
+		childrenMenuConditionEntity.setPidList(pidList);
+		List<MenuEntity> childrenEntities = menuMapper.searchByCondition(childrenMenuConditionEntity);
+		Map<Long, List<MenuEntity>> childrenMenuMap = childrenEntities.stream().collect(Collectors.groupingBy(MenuEntity::getPid));
+		for (MenuEntity menuEntity : menuEntities) {
+			MenuTreeDTO childrenMenuTreeDTO = buildMenuTreeDTO(menuEntity);
+			List<MenuEntity> subMenuEntities = childrenMenuMap.get(menuEntity.getId());
+			if(CollectionUtil.isNotEmpty(subMenuEntities)) {
+				childrenMenuTreeDTO.setLeaf(false);
+				childrenMenuTreeDTO.setSubCount(subMenuEntities.size());
+			} else {
+				childrenMenuTreeDTO.setLeaf(true);
+				childrenMenuTreeDTO.setSubCount(0);
+			}
+			result.add(childrenMenuTreeDTO);
+		}
+		return result;
+	}
 }
