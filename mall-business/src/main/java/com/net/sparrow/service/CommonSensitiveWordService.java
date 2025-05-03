@@ -3,6 +3,7 @@ package com.net.sparrow.service;
 import com.net.sparrow.entity.ResponsePageEntity;
 import com.net.sparrow.entity.common.CommonSensitiveWordConditionEntity;
 import com.net.sparrow.entity.common.CommonSensitiveWordEntity;
+import com.net.sparrow.helper.IdGenerateHelper;
 import com.net.sparrow.mapper.BaseMapper;
 import com.net.sparrow.mapper.common.CommonSensitiveWordMapper;
 import com.net.sparrow.util.AssertUtil;
@@ -37,6 +38,9 @@ public class CommonSensitiveWordService extends BaseService<CommonSensitiveWordE
 
     @Autowired
     private CommonSensitiveWordMapper commonSensitiveWordMapper;
+    @Autowired
+    private IdGenerateHelper idGenerateHelper;
+
 
     @Value("#{'${mall.mgt.customDictionary:}'.split(',')}")
     private List<String> customDictionaryList;
@@ -131,6 +135,7 @@ public class CommonSensitiveWordService extends BaseService<CommonSensitiveWordE
 
     private CommonSensitiveWordEntity creatCommonSensitiveWordEntity(int type, String word) {
         CommonSensitiveWordEntity commonSensitiveWordEntity = new CommonSensitiveWordEntity();
+        commonSensitiveWordEntity.setId(idGenerateHelper.nextId());
         commonSensitiveWordEntity.setType(type);
         commonSensitiveWordEntity.setWord(word.replace(",", ""));
         return commonSensitiveWordEntity;

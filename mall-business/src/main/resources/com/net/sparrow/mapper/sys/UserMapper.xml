@@ -291,7 +291,7 @@
     <insert id="insert" parameterType="com.net.sparrow.entity.sys.UserEntity" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO sys_user
         <trim prefix="(" suffix=")" suffixOverrides=",">
-
+            id,
             <if test="avatarId != null ">
                 avatar_id,
             </if>
@@ -372,6 +372,7 @@
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{GENERATE_ID},
             <if test="avatarId != null ">
                 #{avatarId},
             </if>

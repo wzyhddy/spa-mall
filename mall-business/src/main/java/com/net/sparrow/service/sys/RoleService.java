@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
 import com.net.sparrow.entity.sys.RoleMenuEntity;
+import com.net.sparrow.helper.IdGenerateHelper;
 import com.net.sparrow.mapper.sys.RoleMenuMapper;
 import com.net.sparrow.util.BetweenTimeUtil;
 import org.apache.commons.collections4.CollectionUtils;
@@ -34,6 +35,9 @@ public class RoleService extends BaseService< RoleEntity,  RoleConditionEntity> 
 
 	@Autowired
 	private RoleMenuMapper roleMenuMapper;
+
+	@Autowired
+	private IdGenerateHelper idGenerateHelper;
 
 	/**
      * 查询角色信息
@@ -95,6 +99,7 @@ public class RoleService extends BaseService< RoleEntity,  RoleConditionEntity> 
 		}
 		List<RoleMenuEntity> roleMenuEntities = roleEntity.getMenus().stream().map(x -> {
 			RoleMenuEntity roleMenuEntity = new RoleMenuEntity();
+			roleMenuEntity.setId(idGenerateHelper.nextId());
 			roleMenuEntity.setRoleId(roleEntity.getId());
 			roleMenuEntity.setMenuId(x.getId());
 			return roleMenuEntity;

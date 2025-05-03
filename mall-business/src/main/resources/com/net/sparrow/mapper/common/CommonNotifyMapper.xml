@@ -219,7 +219,7 @@
     <insert id="insert" parameterType="com.net.sparrow.entity.common.CommonNotifyEntity" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO common_notify
         <trim prefix="(" suffix=")" suffixOverrides=",">
-
+            id,
             <if test="type != null ">
                 type,
             </if>
@@ -287,6 +287,7 @@
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{GENERATE_ID},
             <if test="type != null ">
                 #{type},
             </if>

@@ -68,13 +68,6 @@
                 AND status = #{status}
             </if>
 
-            <if test="statusList != null and statusList.size()>0">
-                AND status IN
-                <foreach collection="statusList" item="status" open="(" close=")" separator=",">
-                    #{status}
-                </foreach>
-            </if>
-
             <if test="failureCount != null ">
                 AND failure_count = #{failureCount}
             </if>
@@ -113,6 +106,12 @@
 
             <if test="requestParam != null ">
                 AND request_param = #{requestParam}
+            </if>
+            <if test="statusList != null and statusList.size()>0">
+                AND status IN
+                <foreach collection="statusList" item="status" open="(" close=")" separator=",">
+                    #{status}
+                </foreach>
             </if>
             AND is_del = 0
         </where>
@@ -233,7 +232,7 @@
     <insert id="insert" parameterType="com.net.sparrow.entity.common.CommonTaskEntity">
         INSERT INTO common_task
         <trim prefix="(" suffix=")" suffixOverrides=",">
-
+            id,
             <if test="name != null  and name != ''">
                 name,
             </if>
@@ -305,6 +304,7 @@
 
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{GENERATE_ID},
             <if test="name != null  and name != ''">
                 #{name},
             </if>

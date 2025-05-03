@@ -25,6 +25,7 @@ import com.net.sparrow.entity.mall.UnitConditionEntity;
 import com.net.sparrow.entity.mall.UnitEntity;
 import com.net.sparrow.es.EsTemplate;
 import com.net.sparrow.exception.BusinessException;
+import com.net.sparrow.helper.IdGenerateHelper;
 import com.net.sparrow.helper.ProductHelper;
 import com.net.sparrow.mapper.mall.AttributeMapper;
 import com.net.sparrow.mapper.mall.AttributeValueMapper;
@@ -62,6 +63,8 @@ import org.springframework.util.StringUtils;
 @Slf4j
 public class ProductService extends BaseService< ProductEntity,  ProductConditionEntity> {
 
+	@Autowired
+	private IdGenerateHelper idGenerateHelper;
 	@Autowired
 	private ProductMapper productMapper;
 	@Autowired
@@ -201,6 +204,7 @@ public class ProductService extends BaseService< ProductEntity,  ProductConditio
 		for (ProductEntity productEntity : filterList) {
 			List<ProductAttributeEntity> productAttributeEntities = productEntity.getAttributeEntityList().stream().map(x -> {
 				ProductAttributeEntity productAttributeEntity = new ProductAttributeEntity();
+				productAttributeEntity.setId(idGenerateHelper.nextId());
 				productAttributeEntity.setProductId(productEntity.getId());
 				productAttributeEntity.setAttributeId(x.getAttributeId());
 				productAttributeEntity.setAttributeValueId(x.getId());
@@ -224,6 +228,7 @@ public class ProductService extends BaseService< ProductEntity,  ProductConditio
 			if (CollectionUtils.isNotEmpty(productEntity.getProductPhotoEntityList())) {
 				List<ProductPhotoEntity> productPhotoEntities = productEntity.getProductPhotoEntityList().stream().map(x -> {
 					ProductPhotoEntity productPhotoEntity = new ProductPhotoEntity();
+					productPhotoEntity.setId(idGenerateHelper.nextId());
 					productPhotoEntity.setProductId(productEntity.getId());
 					productPhotoEntity.setName(x.getName());
 					productPhotoEntity.setUrl(x.getUrl());

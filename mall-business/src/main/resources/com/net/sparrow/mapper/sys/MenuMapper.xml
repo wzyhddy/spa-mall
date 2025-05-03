@@ -275,7 +275,7 @@
     <insert id="insert" parameterType="com.net.sparrow.entity.sys.MenuEntity">
         INSERT INTO sys_menu
         <trim prefix="(" suffix=")" suffixOverrides=",">
-
+            id,
             <if test="name != null  and name != ''">
                 name,
             </if>
@@ -363,6 +363,7 @@
             </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{GENERATE_ID},
             <if test="name != null  and name != ''">
                 #{name},
             </if>
