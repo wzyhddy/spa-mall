@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.net.sparrow.dto.web.CityDTO;
 import com.net.sparrow.entity.ResponsePageEntity;
@@ -70,6 +71,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.net.sparrow.constant.NumberConstant.NUMBER_1;
+import static com.net.sparrow.constant.NumberConstant.NUMBER_200;
+
 /**
  * 用户 服务层
  *
@@ -100,6 +104,8 @@ public class UserService extends com.net.sparrow.service.BaseService<UserEntity,
 
 	@Value("${mall.mgt.remoteLoginDiffHour:48}")
 	private int remoteLoginDiffHour;
+
+	private static final String REGISTER_USER_PREFIX = "registerUser:";
 
 	@Autowired
 	private AuthenticationManagerBuilder authenticationManagerBuilder;
@@ -167,6 +173,31 @@ public class UserService extends com.net.sparrow.service.BaseService<UserEntity,
 		userMapper.update(userEntity);
 	}
 
+	private void saveUserToRedis(UserEntity userEntity) {
+		redisUtil.setIfAbsent(REGISTER_USER_PREFIX + userEntity.getUserName(), JSON.toJSONString(userEntity));
+	}
+
+	/**
+	 * 初始化历史用户数据到Redis
+	 */
+	public void initHistoryUserToRedis() {
+		UserConditionEntity userConditionEntity = new UserConditionEntity();
+		userConditionEntity.setPageNo(NUMBER_1);
+		userConditionEntity.setPageSize(NUMBER_200);
+
+		List<UserEntity> userList = userMapper.searchByCondition(userConditionEntity);
+		while (CollectionUtils.isNotEmpty(userList)) {
+			saveUserToRedis(userList);
+			userConditionEntity.setPageNo(userConditionEntity.getPageNo() + 1);
+			userList = userMapper.searchByCondition(userConditionEntity);
+		}
+	}
+
+	private void saveUserToRedis(List<UserEntity> userList) {
+		for (UserEntity userEntity : userList) {
+			saveUserToRedis(userEntity);
+		}
+	}
 
 	public void logout(HttpServletRequest request) {
 		String token = TokenUtil.getTokenForAuthorization(request);
@@ -307,6 +338,8 @@ public class UserService extends com.net.sparrow.service.BaseService<UserEntity,
 		if (CollectionUtils.isNotEmpty(userRoleEntities)) {
 			userRoleMapper.batchInsert(userRoleEntities);
 		}
+		//秒杀系统会用到
+		saveUserToRedis(userEntity);
 	}
 
 	private List<UserRoleEntity> buildUserRoleEntityList(UserEntity userEntity) {

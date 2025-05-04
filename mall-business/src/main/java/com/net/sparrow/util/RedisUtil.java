@@ -126,4 +126,20 @@ public class RedisUtil {
     public Object getHashValue(String key, Object hashKey) {
         return key == null || hashKey == null ? null : stringRedisTemplate.opsForHash().get(key, hashKey);
     }
+
+    /**
+     * 保存缓存，如果key存在，则不做处理
+     *
+     * @param key   键
+     * @param value 值
+     * @return true成功 false失败
+     */
+    public boolean setIfAbsent(String key, String value) {
+        try {
+            return stringRedisTemplate.opsForValue().setIfAbsent(key, value);
+        } catch (Exception e) {
+            log.error("Redis保存数据失败：", e);
+            return false;
+        }
+    }
 }

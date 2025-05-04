@@ -8,6 +8,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Date;
+import java.util.function.Supplier;
 
 /**
  * 填充用户工具
@@ -100,5 +101,21 @@ public abstract class FillUserUtil {
         baseEntity.setUpdateUserId(DEFAULT_USER_ID);
         baseEntity.setUpdateUserName(DEFAULT_USER_NAME);
         baseEntity.setUpdateTime(new Date());
+    }
+
+    /**
+     * mock当前登录的用户
+     *
+     * @param supplier 业务逻辑
+     * @param <T>      泛型
+     * @return 返回结果
+     */
+    public static <T> T mockCurrentUser(Supplier<T> supplier) {
+        mockCurrentUser();
+        try {
+            return supplier.get();
+        } finally {
+            clearCurrentUser();
+        }
     }
 }
