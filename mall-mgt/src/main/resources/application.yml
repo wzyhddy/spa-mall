@@ -46,13 +46,24 @@ logging:
       net:
         sparrow:
           mapper: debug
+
+
+
 mall:
   mgt:
     geoIpFilePath: D:/IdeaProjects/spa-mall/tmp/geoip2
     taobaoIpUrl: https://ip.taobao.com/outGetIpInfo?ip=%s&accessKey=alibaba-inc
-  id:
-    generate:
-      workerId: 1
+    aliPayConfig:
+      protocol: https
+      gatewayHost: openapi-sandbox.dl.alipaydev.com
+      signType: RSA2
+      appId: 9021000144676354
+      privateKey: MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCNMZnZ2TI7hWXFawT2rFW761I5yUckfJEUwbFnRYFNbXK1igBzzDkmyCP4QnTJOSet98SLOF7v6fTghlnzaBj1/e5ZRYRDhs6lDgE9rdXYHyXH5q5jVe1BFp+Vktc4R6Gb+LODfQ8qxdcALwxXjiLzYgH3OK2yRveBBKYnZ5atti3+QtvkBxib+TeBBJlAaxEIqrPKwwHniobybPT7b0NVWZVYiH3oBnTpelX7u3dzqriwcGGvobMiMlgWbicSVhZ7aK75Pr+5rBCGFXxlxlnMHdpS++VyjoC+R3RLDn5SdH5JdvKal1PDJVJJ/w/mKdTeVd539fNT9F2AGxQtjUclAgMBAAECggEAAod+8A4Z/kL3fb/bCOgxaPpgMLTQV3D70Flf6i+uj0qEoYflVi20YGN5cXsPSIODmHQ1yyCpYrbYMiV1+wxEVjPET0kVg3gov4AuuYIhsItuS9RwD0t8wou7NBy7SkDOPlMINDTLTsLYhSJSoEbljWKWEm2rfuQSjvccWtxaMKZqAKLm0Jv++BZPHTRU1uDTmYKesgQFVSNmYRyeq9QAemeA8mLJbJmdlfDCsCr/PZfPeb1qMYFdhHpiDVC9MvKTb0QRR/+ftPtfV/00t2Iws89dsiA5md2NjNNJPAhVW7QYySuZvLExNi4ZgE9TDkzON6EUhkTmZcJKHskURp/kyQKBgQDAUPG6j+iMufBs7cPzRbbW9yeHb2q6RSTsVvRBg1mMXZusOOJxfH1SoxQv9pTjqRrbLdsPJiBg7OhOcyWztMaAGEcHJ+jO5PFZ+iXoI7vZJAgn4cVNhrdbaDqrimsQpmvhqVLm8SR4zIGlbg8z1h9QqcpNKCQMaZmdtUvO1ipBhwKBgQC78uX3IcoIKGgJ6whhPs+ZEXbqzQPQwhLY3Dwg1iOaiBmi7tyauj70JL4bWdNofLREGGm5sikAsEuqoV21SYxziE9UEa74/C42d8EycIH6xNp+OBlu6BmQGh6m4lBDXFfg0cYVMVBsU66lyr+WzVh35jKRBH9UrEa21eMZy1tM8wKBgBpCs09rWTDmLvtg2DH+4gGmjCJFR4iZ6nnPQdk0S2UMXzZ8KgefHSnMlPQbsqcHr2AgedoutZsmnm4f8RUB6V0Sc5h5jaO6xW4o50Y0ovD6p5ZykNOOQrlbmS9VXltOrkqJKYXZhcZs/oMNbUwBwBLurG4uvgVn4g8T838R5YE/AoGAHJVpUfdqkWkLwY5kHN3/lojoa/c4AFSzpxV/c4L9sS/HrlbjaAixMFIyM1iq5TYp+D06PwqQX9FwAIhAByUjXiK55dA2qxk3MgNud2xS6D9t90oy3AIieR7v0HOUv1nY55EfrfNtBryHUCGQl6+tJ7bzs8haURdOPdoziqW5we8CgYBX8oQO4Pyw40SjyRxHUNyPdlxA4nCmH/6bAXW7TbEh+0G2n6Uzmss/nwNjgTe9ii9pxwvBfcCvuwkduvFee05+DluUfnE8R254eaP1v707QJtXbcB9ErqlfM5E1hUKUna6z18/0FFvjApvdwmSTLGuENqfq+1U+/8CYhOHTGVEIA==
+      publicKey: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAimHLxE5tBJW9d3LGUI667XsfjqZ/Gasi3y4OhsC/psoBxaLHuT7k12solN1k2Y7U4aw2ITw5Ff08Q4bTOomg6HdHQzuwpu2yJ92artWA6LcRI7BeS/WmfDhsqHWas2YeFUAUk0s8TltNWL7vjxVL+AB61bstRnAGSyV+DAcra4vTffhZ5cPeBSq/ZxaxildI3CLXBGQmvHYICpW9CqueyxhmLMk/vkbpoqDYRLqet+syZl14V2eeAJnjUdkOTTdmUhzp8ZPwTgb+kLC93T4EtxFJoe8wpyf1wjo0M6DnkVGZDQz/iQlqTL3IAyuCkeLMmK3DpdpT2X5gbTCO3Mh6eQIDAQAB
+      notifyUrl: http://v26655.natappfree.cc/
+    id:
+      generate:
+        workerId: 1
 oss:
   qiniu:
     accessKey: V-Tz0xdLnWFHbHM9mmd78exWVcqAWQeoxrzwSH8i

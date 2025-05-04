@@ -1,5 +1,6 @@
 package com.net.sparrow.config;
 
+import com.net.sparrow.config.properties.AliPayProperties;
 import com.net.sparrow.config.properties.QuartzThreadPoolProperties;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -21,4 +22,9 @@ public class BusinessConfig {
      * 商品搜索index名称
      */
     private String productEsIndexName = "product-es-index-v1";
+
+    /**
+     * 支付宝支付相关配置
+     */
+    private AliPayProperties aliPayConfig = new AliPayProperties();
 }
