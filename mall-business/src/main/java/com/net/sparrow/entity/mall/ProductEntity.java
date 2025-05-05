@@ -95,4 +95,19 @@ public class ProductEntity extends BaseEntity {
 	 */
 	@ApiModelProperty("商品图片")
 	private List<ProductPhotoEntity> productPhotoEntityList;
+
+	/**
+	 * 封面图片
+	 */
+	private List<String> cover;
+
+	/**
+	 * 轮播图
+	 */
+	private List<String> swiper;
+
+	/**
+	 * 详情
+	 */
+	private String detail;
 }
